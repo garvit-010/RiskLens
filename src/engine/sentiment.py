@@ -34,11 +34,22 @@ def _load_finbert() -> None:
         from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
         from src.config import FINBERT_MODEL, MODELS_CACHE_DIR
         logger.info("Loading FinBERT on %s …", _DEVICE)
-        tokenizer = AutoTokenizer.from_pretrained(FINBERT_MODEL, cache_dir=str(MODELS_CACHE_DIR))
+        # Check if local snapshot with weights exists for 100% offline loading
+        snap_dirs = list((MODELS_CACHE_DIR / "models--ProsusAI--finbert" / "snapshots").glob("*"))
+        local_dir = snap_dirs[0] if (snap_dirs and (snap_dirs[0] / "pytorch_model.bin").exists()) else None
+        model_source = str(local_dir) if local_dir else FINBERT_MODEL
+        local_only = local_dir is not None
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_source,
+            cache_dir=str(MODELS_CACHE_DIR),
+            local_files_only=local_only,
+        )
         model = AutoModelForSequenceClassification.from_pretrained(
-            FINBERT_MODEL,
+            model_source,
             cache_dir=str(MODELS_CACHE_DIR),
             torch_dtype=torch.float16 if _DEVICE == "cuda" else torch.float32,
+            local_files_only=local_only,
         )
         _finbert_pipeline = pipeline(
             "text-classification",
