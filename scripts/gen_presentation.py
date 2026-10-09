@@ -276,8 +276,8 @@ def create_presentation():
 
     # Table rows
     rows_s = [
-        ("FinBERT", "86.7%", "0.865", "High (Finance NLP)", HexColor("#60A5FA")),
-        ("VADER (Naive)", "56.7%", "0.548", "Low (Social Lexicon)", HexColor("#9CA3AF"))
+        ("FinBERT", "93.3%", "0.935", "High (Domain Transformer)", HexColor("#60A5FA")),
+        ("VADER (Naive)", "71.7%", "0.713", "Baseline (General Lexicon)", HexColor("#9CA3AF"))
     ]
     ry = 345
     for m, acc, f1, fit, col in rows_s:
@@ -292,11 +292,11 @@ def create_presentation():
 
     c.setFillColor(HexColor("#10B981"))
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(65, 280, "Gain: +30.0% Accuracy / +0.317 Macro-F1 over Naive Baseline")
+    c.drawString(65, 280, "Gain: +21.6% Accuracy / +0.221 Macro-F1 over Naive Baseline")
     c.setFillColor(text_sub)
     c.setFont("Helvetica", 8.8)
-    c.drawString(65, 262, "FinBERT correctly disambiguates financial context (e.g. 'losses widened',")
-    c.drawString(65, 248, "'covenant breach') where lexicon methods incorrectly register neutrality.")
+    c.drawString(65, 262, "FinBERT correctly identifies nuanced credit sentiment (e.g. 'losses widened',")
+    c.drawString(65, 248, "'covenant breach') where naive lexicons misclassify or dilute severity.")
 
     # Event Classifier Card
     draw_card(495, 230, 420, 225, border=HexColor("#8B5CF6"))
@@ -309,32 +309,32 @@ def create_presentation():
     c.setFillColor(text_white)
     c.setFont("Helvetica-Bold", 9.5)
     c.drawString(525, 383, "Model")
-    c.drawString(640, 383, "Macro-F1")
-    c.drawString(730, 383, "OOD Handling")
-    c.drawString(830, 383, "Inference")
+    c.drawString(630, 383, "Macro-F1")
+    c.drawString(715, 383, "Credit F1")
+    c.drawString(820, 383, "Inference")
 
     rows_e = [
-        ("MiniLM+LR", "0.942", "Semantic Generalization", "12 ms", HexColor("#A78BFA")),
-        ("Keyword Baseline", "0.684", "Exact Match Only (Brittle)", "< 1 ms", HexColor("#9CA3AF"))
+        ("MiniLM+LR", "0.642", "0.800", "CUDA / 12 ms", HexColor("#A78BFA")),
+        ("Keyword Baseline", "0.620", "0.640", "CPU / < 1 ms", HexColor("#9CA3AF"))
     ]
     ry = 345
-    for m, f1, ood, inf, col in rows_e:
+    for m, f1, cf1, inf, col in rows_e:
         c.setFillColor(col)
         c.setFont("Helvetica-Bold", 9.5)
         c.drawString(525, ry, m)
         c.setFont("Helvetica", 9.5)
-        c.drawString(640, ry, f1)
-        c.drawString(730, ry, ood)
-        c.drawString(830, ry, inf)
+        c.drawString(630, ry, f1)
+        c.drawString(715, ry, cf1)
+        c.drawString(820, ry, inf)
         ry -= 26
 
     c.setFillColor(HexColor("#10B981"))
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(515, 280, "Gain: +0.258 Macro-F1 Improvement over Keyword Matcher")
+    c.drawString(515, 280, "Gain: +16.0 pp Credit Event F1 (0.80 vs 0.64) over Keywords")
     c.setFillColor(text_sub)
     c.setFont("Helvetica", 8.8)
-    c.drawString(515, 262, "Dense embedding space maps diverse vocabulary ('regulators seize assets',")
-    c.drawString(515, 248, "'liquidity backstop failed') without brittle regex keyword lists.")
+    c.drawString(515, 262, "Semantic embeddings capture institutional vocabulary ('regulators seize',")
+    c.drawString(515, 248, "'bank run fears') without requiring exhaustive regex dictionaries.")
 
     # Bottom SVB Case Study Card
     draw_card(45, 60, 870, 155, border=HexColor("#F59E0B"))
