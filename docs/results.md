@@ -4,17 +4,27 @@
 
 ## 1. Sentiment Engine: FinBERT vs VADER
 
-**Dataset:** Financial PhraseBank (100% Annotator Agreement Subset, 500 sentences evaluated from `Sentences_AllAgree.txt`).
+**Dataset:** Financial PhraseBank (100% Annotator Agreement Subset, 2264 sentences evaluated from `Sentences_AllAgree.txt`).
 
 | Model | Accuracy | Macro-F1 | Notes |
 |---|---|---|---|
-| **ProsusAI/finbert** (fp16) | **95.6%** (0.9560) | **0.8836** | Domain pre-trained transformer |
-| **VADER** (rule baseline) | 69.8% (0.6980) | 0.4752 | Lexicon-based fallback |
+| **ProsusAI/finbert** (fp16) | **87.6%** (0.8759) | **0.8763** | Domain pre-trained transformer |
+| **VADER** (rule baseline) | 57.1% (0.5711) | 0.4871 | Lexicon-based fallback |
 
-**Measured Throughput:** `24.2 docs/sec` on NVIDIA GeForce GTX 1650 Ti (4GB VRAM, CUDA fp16).
+**Measured Throughput:** `37.8 docs/sec` on NVIDIA GeForce GTX 1650 Ti (4GB VRAM, CUDA fp16).
+
+### Per-Class Performance Breakdown
+
+| Sentiment Class | Support | FinBERT Prec | FinBERT Rec | FinBERT F1 | VADER Prec | VADER Rec | VADER F1 |
+|---|---|---|---|---|---|---|---|
+| **Negative** | 303 | 0.845 | 0.987 | **0.910** | 0.368 | 0.224 | 0.279 |
+| **Neutral** | 1391 | 0.996 | 0.812 | **0.895** | 0.805 | 0.579 | 0.673 |
+| **Positive** | 570 | 0.714 | 0.974 | **0.824** | 0.389 | 0.737 | 0.509 |
 
 > [!NOTE]
-> FinBERT was pre-trained and fine-tuned on financial sentiment corpora (including Financial PhraseBank), so evaluated performance figures on such domain samples are inherently optimistic. VADER provides zero-weight fast fallback on CPU.
+> **Key Caveats:**
+> 1. **Optimistic Ceiling:** `Sentences_AllAgree` is the easiest Financial PhraseBank subset (100% annotator agreement), and FinBERT was pre-trained and fine-tuned on Financial PhraseBank, so accuracy figures represent an optimistic performance ceiling.
+> 2. **Macro-F1 vs Accuracy Gap:** The gap between overall accuracy and macro-F1 is driven by performance on minority classes (e.g. Negative sentiment), where class imbalance affects macro averaging. Per-class metrics above reveal exact precision and recall per sentiment polarity.
 
 ## 2. Event Classification: MiniLM+LR vs Keyword Baseline
 

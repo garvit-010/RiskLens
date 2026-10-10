@@ -276,8 +276,8 @@ def create_presentation():
 
     # Table rows
     rows_s = [
-        ("FinBERT", "95.6%", "0.884", "High (Domain Transformer)", HexColor("#60A5FA")),
-        ("VADER (Naive)", "69.8%", "0.475", "Baseline (General Lexicon)", HexColor("#9CA3AF"))
+        ("FinBERT", "87.6%", "0.876", "High (Domain Transformer)", HexColor("#60A5FA")),
+        ("VADER (Naive)", "57.1%", "0.487", "Baseline (General Lexicon)", HexColor("#9CA3AF"))
     ]
     ry = 345
     for m, acc, f1, fit, col in rows_s:
@@ -292,11 +292,11 @@ def create_presentation():
 
     c.setFillColor(HexColor("#10B981"))
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(65, 280, "Gain: +25.8% Accuracy / +0.408 Macro-F1 over Naive Baseline")
+    c.drawString(65, 280, "Gain: +30.5% Accuracy / +0.389 Macro-F1 (Full n=2,264 Subset)")
     c.setFillColor(text_sub)
     c.setFont("Helvetica", 8.8)
-    c.drawString(65, 262, "Financial PhraseBank 100% agreement subset (n=500). FinBERT correctly")
-    c.drawString(65, 248, "identifies nuanced credit sentiment where naive lexicons misclassify or dilute severity.")
+    c.drawString(65, 262, "Negative Class Recall: FinBERT 98.7% (F1: 0.91) vs VADER 22.4% (F1: 0.28).")
+    c.drawString(65, 248, "Captures critical credit downside where naive lexicons miss 78% of distressed signals.")
 
     # Event Classifier Card
     draw_card(495, 230, 420, 225, border=HexColor("#8B5CF6"))

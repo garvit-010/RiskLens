@@ -22,8 +22,6 @@ class ShockVector:
     rate_shock_bps:                 float = 0.0    # parallel rate move in basis points
     spread_shock_bps:               dict  = field(default_factory=dict)  # per rating bucket
     pd_multiplier:                  float = 1.0    # × current PD
-    fx_shock_em:                    float = 0.0    # EM FX depreciation
-    oil_shock:                      float = 0.0    # oil price change
     sector_overrides:               dict  = field(default_factory=dict)  # sector-specific spread shocks
     target_sector_spread_extra_bps: float = 0.0    # extra spread widening in target sector
     spillover_fraction:             float = 1.0    # fraction of shock applied to non-target sectors
@@ -46,8 +44,6 @@ BASE_SCENARIOS: dict[str, ShockVector] = {
         rate_shock_bps   = 30.0,
         spread_shock_bps = {"AAA": 10, "AA": 20, "A": 40, "BBB": 80, "BB": 150, "B": 250, "CCC": 400},
         pd_multiplier    = 1.3,
-        fx_shock_em      = -0.05,
-        oil_shock        =  0.15,
     ),
     "Macroeconomic": ShockVector(
         equity_shock     = -0.05,
@@ -82,7 +78,6 @@ BASE_SCENARIOS: dict[str, ShockVector] = {
     ),
     "Supply Chain/Commodity": ShockVector(
         equity_shock     = -0.04,
-        oil_shock        =  0.10,
         spread_shock_bps = {"BBB": 30, "BB": 70, "B": 120},
         pd_multiplier    = 1.1,
     ),
@@ -110,8 +105,6 @@ def scale_scenario(base: ShockVector, impact_score: float, floor: float = 5.0) -
         rate_shock_bps                 = base.rate_shock_bps   * scale,
         spread_shock_bps               = {k: v * scale for k, v in base.spread_shock_bps.items()},
         pd_multiplier                  = 1.0 + (base.pd_multiplier - 1.0) * scale,
-        fx_shock_em                    = base.fx_shock_em      * scale,
-        oil_shock                      = base.oil_shock        * scale,
         sector_overrides               = base.sector_overrides,
         target_sector_spread_extra_bps = base.target_sector_spread_extra_bps * scale,
         spillover_fraction             = base.spillover_fraction,

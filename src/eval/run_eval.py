@@ -61,7 +61,7 @@ def _load_labeled_events(path: Path) -> tuple[list[str], list[str]] | None:
 
 def eval_sentiment(texts: list[str], labels: list[str]) -> dict:
     """Evaluate FinBERT and VADER on labeled texts."""
-    from sklearn.metrics import accuracy_score, f1_score
+    from sklearn.metrics import accuracy_score, f1_score, classification_report
     from src.engine.sentiment import sentiment_finbert, sentiment_vader
 
     fb_preds, vd_preds = [], []
@@ -80,16 +80,37 @@ def eval_sentiment(texts: list[str], labels: list[str]) -> dict:
         vd_preds.append(1 if vd_s > 0.05 else (-1 if vd_s < -0.05 else 0))
     elapsed = time.time() - t0
 
+    fb_report_dict = classification_report(
+        true_labels, fb_preds, labels=[-1, 0, 1],
+        target_names=["Negative", "Neutral", "Positive"], output_dict=True, zero_division=0
+    )
+    fb_report_str = classification_report(
+        true_labels, fb_preds, labels=[-1, 0, 1],
+        target_names=["Negative", "Neutral", "Positive"], zero_division=0
+    )
+    vd_report_dict = classification_report(
+        true_labels, vd_preds, labels=[-1, 0, 1],
+        target_names=["Negative", "Neutral", "Positive"], output_dict=True, zero_division=0
+    )
+    vd_report_str = classification_report(
+        true_labels, vd_preds, labels=[-1, 0, 1],
+        target_names=["Negative", "Neutral", "Positive"], zero_division=0
+    )
+
     results = {
         "n": len(texts),
         "throughput_docs_per_sec": round(len(texts) / elapsed, 1),
         "finbert": {
             "accuracy": round(accuracy_score(true_labels, fb_preds), 4),
             "macro_f1": round(f1_score(true_labels, fb_preds, average="macro", zero_division=0), 4),
+            "per_class": fb_report_dict,
+            "report": fb_report_str,
         },
         "vader": {
             "accuracy": round(accuracy_score(true_labels, vd_preds), 4),
             "macro_f1": round(f1_score(true_labels, vd_preds, average="macro", zero_division=0), 4),
+            "per_class": vd_report_dict,
+            "report": vd_report_str,
         },
     }
     logger.info("Sentiment results: %s", results)
@@ -236,8 +257,25 @@ def save_results_md(sentiment_results: dict | None, event_results: dict | None) 
             "",
             f"**Measured Throughput:** `{tp:.1f} docs/sec` on NVIDIA GeForce GTX 1650 Ti (4GB VRAM, CUDA fp16).",
             "",
+            "### Per-Class Performance Breakdown",
+            "",
+            "| Sentiment Class | Support | FinBERT Prec | FinBERT Rec | FinBERT F1 | VADER Prec | VADER Rec | VADER F1 |",
+            "|---|---|---|---|---|---|---|---|",
+        ]
+        for cls in ["Negative", "Neutral", "Positive"]:
+            fb_c = fb.get("per_class", {}).get(cls, {})
+            vd_c = vd.get("per_class", {}).get(cls, {})
+            supp = int(fb_c.get("support", 0))
+            lines.append(
+                f"| **{cls}** | {supp} | {fb_c.get('precision', 0):.3f} | {fb_c.get('recall', 0):.3f} | **{fb_c.get('f1-score', 0):.3f}** | "
+                f"{vd_c.get('precision', 0):.3f} | {vd_c.get('recall', 0):.3f} | {vd_c.get('f1-score', 0):.3f} |"
+            )
+        lines += [
+            "",
             "> [!NOTE]",
-            "> FinBERT was pre-trained and fine-tuned on financial sentiment corpora (including Financial PhraseBank), so evaluated performance figures on such domain samples are inherently optimistic. VADER provides zero-weight fast fallback on CPU.",
+            "> **Key Caveats:**",
+            "> 1. **Optimistic Ceiling:** `Sentences_AllAgree` is the easiest Financial PhraseBank subset (100% annotator agreement), and FinBERT was pre-trained and fine-tuned on Financial PhraseBank, so accuracy figures represent an optimistic performance ceiling.",
+            "> 2. **Macro-F1 vs Accuracy Gap:** The gap between overall accuracy and macro-F1 is driven by performance on minority classes (e.g. Negative sentiment), where class imbalance affects macro averaging. Per-class metrics above reveal exact precision and recall per sentiment polarity.",
             "",
         ]
     else:
@@ -303,12 +341,10 @@ def main() -> None:
     sentiment_results = None
     event_results     = None
 
-    # Sentiment eval
+    # Sentiment eval on all 2,264 sentences of Financial PhraseBank
     phrasebank = _load_phrasebank(RAW_DIR / "phrasebank.csv")
     if phrasebank:
         texts, labels = phrasebank
-        # Use up to 500 examples for speed
-        texts, labels = texts[:500], labels[:500]
         sentiment_results = eval_sentiment(texts, labels)
 
     # Event eval – cross-validation and trains the classifier

@@ -293,20 +293,32 @@ with tab_stress:
         unsafe_allow_html=True,
     )
 
-    # Pick trigger signal
+    # Pick trigger signal (pin primary SVB demo trigger first)
     high_signals = [s for s in signals if s.get("impact_score", 0) >= impact_threshold]
+    demo_signals = [
+        s for s in high_signals
+        if s.get("entity", {}).get("ticker") == "SIVB"
+        and s.get("event_type") == "Credit Event"
+        and "2023-03-08T15:00" in s.get("timestamp", "")
+    ]
+    other_high = [s for s in high_signals if s not in demo_signals]
+    ordered_high = demo_signals + other_high
 
     col_s1, col_s2 = st.columns([2, 1])
     with col_s1:
-        if high_signals:
-            sig_labels = [
-                f"[{s['timestamp'][:16]}] {s.get('entity', {}).get('ticker','?')} – "
-                f"{s.get('event_type','?')} (Impact {s.get('impact_score',0):.1f})"
-                for s in high_signals[:20]
-            ]
+        if ordered_high:
+            sig_labels = []
+            for i, s in enumerate(ordered_high[:20]):
+                ticker = s.get("entity", {}).get("ticker", "?")
+                etype = s.get("event_type", "?")
+                imp = s.get("impact_score", 0)
+                ts = s.get("timestamp", "")[:16]
+                prefix = "⭐ [PRIMARY DEMO] " if (i == 0 and ticker == "SIVB") else ""
+                sig_labels.append(f"{prefix}[{ts}] {ticker} – {etype} (Impact {imp:.1f})")
+
             sel_idx = st.selectbox("Triggering event", range(len(sig_labels)),
                                    format_func=lambda i: sig_labels[i])
-            trigger_signal = high_signals[sel_idx]
+            trigger_signal = ordered_high[sel_idx]
         else:
             st.warning("No high-impact signals yet. Using demo Credit Event scenario.")
             trigger_signal = {

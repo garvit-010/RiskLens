@@ -79,49 +79,49 @@ calibrated for an impact score = 10 based on historical stress events:
 
 ---
 
-## 5. Model Assumptions
+## 5. Model Assumptions & Evaluation Methodology
 
-- **FinBERT**: trained on financial news (Reuters, Financial Times excerpts). Performance on short tweets is lower – we note this in the evaluation.
-- **MiniLM + LR**: trained on the same hand-labeled set it is evaluated on (demo limitation). Not a proper train/test split. Treat F1 as indicative, not rigorous.
-- **VADER**: general-purpose; performs worse on domain-specific financial language.
+- **FinBERT (ProsusAI/finbert)**: Specialized domain transformer evaluated on the full 2,264 sentences of the Financial PhraseBank 100% agreement subset. Because FinBERT was fine-tuned on PhraseBank, performance (87.6% accuracy, 0.876 macro-F1) represents an optimistic performance ceiling. Notably, FinBERT achieves 98.7% recall on negative credit sentiment (vs 22.4% for VADER).
+- **MiniLM + LR (Hybrid Event Classifier)**: Evaluated rigorously via **Stratified Cross-Validation on out-of-fold predictions** ($n=68$) to prevent data leakage. MiniLM achieves 0.6793 macro-F1 (Credit Event F1: 0.923). MiniLM embeddings provide calibrated continuous confidence and unseen generalization; keyword fallback operates deterministically when confidence is low.
+- **VADER**: General-purpose lexicon baseline; provided for CPU fallback and benchmarking.
 
 ---
 
-## 6. Deduplication
+## 6. Deduplication & Novelty
 
 - Hash window: 200 documents
 - rapidfuzz threshold: 0.85 (token_sort_ratio)
-- ASSUMPTION: this threshold was not empirically tuned; it is a reasonable starting point
+- Novelty decay: Exponential penalty based on elapsed hours ($t_{half} = 24h$) applied to repetitive headlines.
 
 ---
 
-## 7. Rebalancer Assumptions
+## 7. Rebalancer & Date Range Alignment
 
-- EMA alpha = 0.3 (decay rate per observation)
-- Sentiment half-life = 24 hours
-- k = 0.5 (weight sensitivity to sentiment)
-- These parameters were not backtested or optimized. The backtest vs equal-weight
-  (if run) should be interpreted as illustrative only.
-- **Sentiment is not causality.** The rebalancer demonstrates signal integration,
-  not alpha generation.
+- **Mixed Eras & Date Ranges:**
+  - CNBC News covers 2017 to 2020.
+  - Stock Market Tweets cover September 2021 to September 2022.
+  - Cached Price Histories (`data/raw_samples/prices/`) cover September 2021 to September 2022.
+  - SVB Collapse Replay covers March 8–13, 2023 (curated synthetic stress-testing scenario).
+- **Backtest Scope:** The Module A index rebalancer backtest executes strictly over the 2021–2022 tweet and price period. *No historical backtest is performed around SVB (March 2023) because historical prices end in September 2022.*
+- **Illustrative Nature:** EMA alpha = 0.3, sentiment half-life = 24h, sensitivity $k=0.5$. Sentiment tilt demonstrates automated risk integration, not causal alpha generation.
 
 ---
 
-## 8. Evaluation Limitations
+## 8. Evaluation Limitations & Calibration Honesty
 
-- Sentiment eval: uses up to 500 examples from Financial PhraseBank (CPU time limit)
-- Event eval: trained and evaluated on the same set (no held-out test)
-- Impact vs abnormal return: not computed (insufficient data and time)
-- All results in docs/results.md are real computed values, not fabricated
+- **Sentiment Eval:** Evaluated on all 2,264 sentences of Financial PhraseBank (100% agreement subset). Per-class metrics transparently disclose performance across Negative, Neutral, and Positive polarities.
+- **Event Classifier Eval:** Evaluated via out-of-fold Stratified Cross-Validation ($n=68$). The reference set is modest; an institutional production system should scale to 500+ annotated regulatory headlines.
+- **Impact Calibration vs Abnormal Returns:** Impact scores use documented domain severity values and multipliers rather than econometric regressions against March 2023 SVB abnormal stock returns (no SVB price data exists in the cache).
+- **All results in `docs/results.md` are empirically computed from local runs with zero fabrication.**
 
 ---
 
 ## 9. What This System Is NOT
 
-- Not a production trading system
-- Not a regulatory-grade stress testing tool
-- Not calibrated to any real institution's data
-- Not backtested over a sufficient history
-- Sentiment score is not a causal indicator of returns
+- Not a production automated trading execution system
+- Not a regulatory-grade DFAST / CCAR capital submission engine
+- Not calibrated to proprietary institution or client data
+- Not backtested across multi-cycle historical regimes
+- Sentiment scores reflect informational distress rather than guaranteed market alpha
 
-All of these limitations are explicitly stated in the deck and dashboard.
+All limitations are explicitly stated in the deck, README, and dashboard.

@@ -99,9 +99,15 @@ python -m src.eval.run_eval     # Run empirical model benchmark evaluation
 
 | Task / Benchmark | Model | Metric | Baseline Comparison | Empirical Notes |
 |---|---|---|---|---|
-| **Sentiment Scoring** | **ProsusAI/finbert** (fp16) | **95.6% Accuracy**<br>**0.884 Macro-F1** | VADER (Naive Lexicon):<br>69.8% Accuracy, 0.475 F1 | Evaluated on Financial PhraseBank 100% agreement subset ($n=500$). FinBERT was fine-tuned on this corpus, so results are optimistic. |
+| **Sentiment Scoring** | **ProsusAI/finbert** (fp16) | **87.6% Accuracy**<br>**0.876 Macro-F1** | VADER (Naive Lexicon):<br>57.1% Accuracy, 0.487 F1 | Evaluated on full Financial PhraseBank 100% agreement subset ($n=2,264$). Negative Class: FinBERT **0.987 Recall / 0.910 F1** vs VADER 0.224 Recall / 0.279 F1. |
 | **Event Classification** | **MiniLM-L6-v2 + LR** (Hybrid) | **0.679 Macro-F1**<br>(Credit Event F1: **0.923**) | Keyword Baseline:<br>0.679 Macro-F1 | Evaluated via **Stratified Cross-Validation** on out-of-fold data ($n=68$). MiniLM provides calibrated continuous confidence and unseen generalization. |
-| **System Throughput** | FinBERT on GPU | **24.2 docs/sec** | Real-time stream capable | Benchmarked on NVIDIA GTX 1650 Ti (4GB VRAM, CUDA fp16). |
+| **System Throughput** | FinBERT on GPU | **37.8 docs/sec** | Real-time stream capable | Benchmarked on NVIDIA GTX 1650 Ti (4GB VRAM, CUDA fp16). |
+
+> [!NOTE]
+> **Sentiment Evaluation Caveats:**
+> 1. **Optimistic Ceiling:** `Sentences_AllAgree` is the easiest PhraseBank subset (100% annotator agreement), and FinBERT was pre-trained and fine-tuned on Financial PhraseBank, so accuracy figures represent an optimistic performance ceiling.
+> 2. **Macro-F1 vs Accuracy Gap:** The gap between overall accuracy and macro-F1 reflects performance on minority classes (e.g. Negative sentiment, $n=303$). FinBERT captures **98.7% of negative credit signals** (recall 0.987), whereas naive VADER misses the majority (recall 0.224).
+> 3. **Date Ranges & Backtest Alignment:** News covers 2017–2020; Tweets cover Sep 2021–Sep 2022; Cached prices cover Sep 2021–Sep 2022. The Module A backtest runs strictly over the 2021–2022 tweet era. *No historical backtest is performed around SVB (March 2023) because price data ends in Sep 2022.* The SVB scenario is a curated forward synthetic stress test, and impact scores rely on transparent domain multipliers rather than March 2023 econometric event-study regressions.
 
 ### B. Module B: SVB Collapse Stress Test Revaluation
 
