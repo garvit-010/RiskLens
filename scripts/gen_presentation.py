@@ -276,8 +276,8 @@ def create_presentation():
 
     # Table rows
     rows_s = [
-        ("FinBERT", "93.3%", "0.935", "High (Domain Transformer)", HexColor("#60A5FA")),
-        ("VADER (Naive)", "71.7%", "0.713", "Baseline (General Lexicon)", HexColor("#9CA3AF"))
+        ("FinBERT", "95.6%", "0.884", "High (Domain Transformer)", HexColor("#60A5FA")),
+        ("VADER (Naive)", "69.8%", "0.475", "Baseline (General Lexicon)", HexColor("#9CA3AF"))
     ]
     ry = 345
     for m, acc, f1, fit, col in rows_s:
@@ -292,17 +292,17 @@ def create_presentation():
 
     c.setFillColor(HexColor("#10B981"))
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(65, 280, "Gain: +21.6% Accuracy / +0.221 Macro-F1 over Naive Baseline")
+    c.drawString(65, 280, "Gain: +25.8% Accuracy / +0.408 Macro-F1 over Naive Baseline")
     c.setFillColor(text_sub)
     c.setFont("Helvetica", 8.8)
-    c.drawString(65, 262, "FinBERT correctly identifies nuanced credit sentiment (e.g. 'losses widened',")
-    c.drawString(65, 248, "'covenant breach') where naive lexicons misclassify or dilute severity.")
+    c.drawString(65, 262, "Financial PhraseBank 100% agreement subset (n=500). FinBERT correctly")
+    c.drawString(65, 248, "identifies nuanced credit sentiment where naive lexicons misclassify or dilute severity.")
 
     # Event Classifier Card
     draw_card(495, 230, 420, 225, border=HexColor("#8B5CF6"))
     c.setFillColor(HexColor("#C4B5FD"))
     c.setFont("Helvetica-Bold", 13)
-    c.drawString(515, 425, "2. EVENT CLASSIFIER: MiniLM+LR vs. Keyword")
+    c.drawString(515, 425, "2. EVENT CLASSIFIER: Stratified CV Benchmark")
 
     c.setFillColor(HexColor("#374151"))
     c.rect(515, 375, 380, 26, fill=True, stroke=False)
@@ -311,11 +311,11 @@ def create_presentation():
     c.drawString(525, 383, "Model")
     c.drawString(630, 383, "Macro-F1")
     c.drawString(715, 383, "Credit F1")
-    c.drawString(820, 383, "Inference")
+    c.drawString(820, 383, "Role")
 
     rows_e = [
-        ("MiniLM+LR", "0.642", "0.800", "CUDA / 12 ms", HexColor("#A78BFA")),
-        ("Keyword Baseline", "0.620", "0.640", "CPU / < 1 ms", HexColor("#9CA3AF"))
+        ("MiniLM+LR (CV)", "0.679", "0.923", "Continuous Prob", HexColor("#A78BFA")),
+        ("Keyword Baseline", "0.679", "0.923", "Rule Fallback", HexColor("#9CA3AF"))
     ]
     ry = 345
     for m, f1, cf1, inf, col in rows_e:
@@ -330,11 +330,11 @@ def create_presentation():
 
     c.setFillColor(HexColor("#10B981"))
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(515, 280, "Gain: +16.0 pp Credit Event F1 (0.80 vs 0.64) over Keywords")
+    c.drawString(515, 280, "Out-of-Fold Cross-Validation: High Credit Event F1 (0.92)")
     c.setFillColor(text_sub)
     c.setFont("Helvetica", 8.8)
-    c.drawString(515, 262, "Semantic embeddings capture institutional vocabulary ('regulators seize',")
-    c.drawString(515, 248, "'bank run fears') without requiring exhaustive regex dictionaries.")
+    c.drawString(515, 262, "MiniLM embeddings provide calibrated continuous confidence and generalize")
+    c.drawString(515, 248, "to unseen phrases; transparent keyword fallback activates when confidence < 0.55.")
 
     # Bottom SVB Case Study Card
     draw_card(45, 60, 870, 155, border=HexColor("#F59E0B"))
@@ -343,10 +343,10 @@ def create_presentation():
     c.drawString(65, 185, "3. LIVE REPLAY CASE STUDY: SILICON VALLEY BANK (MARCH 8-13, 2023)")
 
     svb_points = [
-        ("Event Sequence Ingestion:", "30 curated chronological headlines & social tweets replayed through unified engine."),
-        ("Earliest Alarm:", "March 8, 2023: 'SVB seeks $2.25B capital raise after $1.8B bond sale loss' triggers Impact 7.4 (Threshold > 7.0)."),
-        ("Corroboration Cascade:", "March 9-10: Cross-source confirmation surges corroboration multiplier to 1.35x, pushing Impact to 8.8."),
-        ("Wholesale Portfolio Shock:", "Triggered 5.2% mark-to-market loss on banking credit lines and loan spreads before FDIC resolution.")
+        ("Event Ingestion & Credibility:", "30 curated chronological headlines & tweets replayed with independent source credibility (0.85 news, 0.55 social)."),
+        ("Primary Demo Trigger:", "March 8, 2023: 'SVB stock plunges 60% as bank run fears intensify' triggers Credit Event at max impact 10.0."),
+        ("Credit-Aware Sector Targeting:", "Hits Financials (-$42.1M loss, >2.7x other sectors) with 25% spillover to others, producing -$142M net loss (-3.24%)."),
+        ("Reverse Stress Test:", "15-step bisection search pinpoints portfolio 2.5% loss breach at Impact 8.85 ($109.7M monetary loss).")
     ]
     sy = 155
     for stitle, sdesc in svb_points:
@@ -371,8 +371,8 @@ def create_presentation():
             "PD / Rating Migration: Converts qualitative negative sentiment directly into calibrated rating transitions and expected-loss surges.",
             "Concentration Monitoring: Immediate asset-class, sector, and counterparty exposure aggregation."
         ]),
-        ("Regulatory Stress Testing Parallels", HexColor("#8B5CF6"), [
-            "CCAR / DFAST Alignment: Shocks are structured into standard supervisory categories (spreads by rating bucket, equity betas, DV01).",
+        ("Supervisory Stress Testing Parallels", HexColor("#8B5CF6"), [
+            "ICAAP & Supervisory Practices: Conceptually aligned with scenario analysis practices used in ICAAP and supervisory stress testing.",
             "Reverse Stress Testing (SR 12-7): Empirically solves for boundary conditions where portfolio capital thresholds are breached.",
             "Auditable Lineage: Every stressed valuation links to the exact source headline, timestamp, and model component score."
         ]),

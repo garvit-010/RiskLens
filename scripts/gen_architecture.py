@@ -52,7 +52,7 @@ def generate_architecture_diagram():
     # Stage 1: Sources
     draw_box(0.5, 3.2, 2.4, 3.8, 
              "1. DATA SOURCES", "Multi-modal Text",
-             ["Kaggle News Headlines", "Kaggle Stock Tweets", "SVB Replay (JSONL)", "NewsAPI (Adapter Stub)"],
+             ["SVB Replay (JSONL)", "Independent News/Social", "Kaggle Adapters (Pluggable)", "NewsAPI (Adapter Stub)"],
              bg_color='#131B2E', border_color='#3B82F6', title_color='#93C5FD')
 
     # Stage 2: Ingestion
@@ -82,7 +82,7 @@ def generate_architecture_diagram():
     # Downstream Module B: Strategic Stress Testing
     draw_box(12.8, 2.5, 2.7, 2.0, 
              "MODULE B: STRESS TEST", "Wholesale Banking (Primary)",
-             ["300-asset Wholesale Port.", "Rate, Spread & PD Shocks", "Reverse Stress Test (Breaks)", "Waterfall & Drilldowns"],
+             ["300-asset Wholesale Port.", "Credit-Aware Sector Targeting", "Signed Reverse Stress Test", "Waterfall & Sector Drilldown"],
              bg_color='#2A1215', border_color='#EF4444', title_color='#FCA5A5')
 
     # Downstream Module A: Tactical Rebalancer

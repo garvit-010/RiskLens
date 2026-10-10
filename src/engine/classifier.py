@@ -51,7 +51,11 @@ _KEYWORD_RULES: dict[str, list[str]] = {
     "Credit Event": [
         "downgrade", "default", "covenant", "bankruptcy", "insolvency",
         "credit rating", "junk", "non-investment grade", "distressed",
-        "missed payment", "debt restructuring", "svb", "silicon valley bank",
+        "missed payment", "debt restructuring",
+        "bank run", "bank failure", "liquidity crisis", "deposit outflows",
+        "deposit flight", "rescue", "bailout", "commercial real estate",
+        "cre exposure", "capital raise", "contagion", "seized", "collapse",
+        "pull deposits", "pull money", "crisis",
     ],
     "Geopolitical": [
         "war", "sanctions", "invasion", "military", "conflict", "geopolitical",
@@ -60,6 +64,7 @@ _KEYWORD_RULES: dict[str, list[str]] = {
     "Macroeconomic": [
         "inflation", "interest rate", "fed", "federal reserve", "gdp",
         "recession", "cpi", "rate hike", "rate cut", "ecb", "boe", "rbi",
+        "growth forecast", "tightening", "lending standards", "monetary policy",
     ],
     "Regulatory/Legal": [
         "sec", "fine", "penalty", "lawsuit", "regulation", "compliance",
@@ -74,8 +79,7 @@ _KEYWORD_RULES: dict[str, list[str]] = {
         "q1", "q2", "q3", "q4", "quarterly", "beat", "miss", "outlook",
     ],
     "Product Launch": [
-        "launch", "new product", "release", "unveil", "announce",
-        "iphone", "model", "version", "upgrade",
+        "launch", "new product", "unveil", "product launch", "rollout",
     ],
     "Operational/Cyber": [
         "hack", "cyber", "breach", "outage", "data leak", "ransomware",

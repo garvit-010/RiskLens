@@ -5,13 +5,15 @@
 | Dataset | Source | Status in Repo | License | Location |
 |---|---|---|---|---|
 | SVB Collapse Replay | Curated synthetic events based on public news (March 8–13, 2023) | **Shipped in repo** (30 records: 18 news, 12 social) | Public / Original | `raw_samples/replay_svb.jsonl` |
-| Curated Sentiment Eval | Curated financial headline sample | **Shipped in repo** (60 sentences) | Public / Educational | `raw_samples/phrasebank.csv` |
-| Labeled Event Eval | Curated banking risk headline set | **Shipped in repo** (67 headlines, 11 classes) | Public / Educational | `labeled_eval/labels.csv` |
+| Financial PhraseBank | Official 100% annotator agreement subset (Malo et al.) | **Shipped in repo** (2,264 sentences) | CC BY-SA 3.0 / Research | `raw_samples/phrasebank.csv` |
+| Curated Sentiment Eval | Curated financial headline sample | **Shipped in repo** (60 sentences, 95% CI ±6 pp) | Public / Educational | `raw_samples/sentiment_sample_n60.csv` |
+| Labeled Event Eval | Curated banking risk headline reference set | **Shipped in repo** (68 headlines, 11 classes, evaluated via out-of-fold stratified CV) | Public / Educational | `labeled_eval/labels.csv` |
 | Synthetic Wholesale Portfolio | Fully synthetic (seed 42) wholesale portfolio | **Shipped in repo** (300 positions) | Synthetic | `portfolio/portfolio.csv` |
 | Scenario Shock Library | Documented wholesale risk shocks | **Shipped in repo** (11 risk scenarios) | Documented assumptions | `scenarios/scenarios.yaml` |
-| Financial News Headlines | Kaggle (Financial News Headlines) | Optional (adapters ready; requires human Kaggle download) | Public | `raw_samples/news.csv` |
-| Stock Tweets | Kaggle (Stock Market Tweets) | Optional (adapters ready; requires human Kaggle download) | Public | `raw_samples/tweets.csv` |
-| Price Cache | yfinance market data cache | Optional / Local cache | Public | `raw_samples/prices/` |
+| Financial News Sample | CNBC Market News Headlines subset | **Shipped in repo** (500 sampled headlines) | Public / Educational | `raw_samples/news.csv` |
+| Stock Tweets Sample | Stock Market Tweets subset | **Shipped in repo** (300 sampled tweets) | Public / Educational | `raw_samples/tweets.csv` |
+| Price Cache | Historical daily prices (AAPL, TSLA, SIVB, etc.) | **Shipped in repo** (25 tickers for offline backtest) | Public / Yahoo Finance | `raw_samples/prices/` |
+| Precomputed Signals | Full neural engine replay output | **Shipped in repo** (30 signals with full audit trail) | Computed | `output/signals.jsonl` |
 
 ## Assumptions & Integrity
 
