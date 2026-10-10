@@ -33,22 +33,28 @@ and discuss it as a "next step" in the deck.
 
 ---
 
-## 2. Scenario Shock Magnitudes
+## 2. Scenario Shock Magnitudes and Sector Targeting
 
-**STATUS: DOCUMENTED ASSUMPTIONS**
+**STATUS: DOCUMENTED ASSUMPTIONS & SECTOR SENSITIVITY**
 
 All shock magnitudes (equity %, rate bps, spread bps, PD multipliers) are
-educated guesses based on historical stress events:
+calibrated for an impact score = 10 based on historical stress events:
 
 | Scenario | Reference events used as inspiration |
 |---|---|
 | Credit Event spread shocks | Investment-grade spread widening during 2008-09 GFC |
-| Geopolitical | Russia-Ukraine invasion (Feb 2022): oil +15%, EM FX -5%, equity -8% |
+| Geopolitical | Russia-Ukraine invasion (Feb 2022): equity -8%, rates +30bps |
 | Macroeconomic | 2022 rate hike cycle: +200bps Feds funds, equity -20% over the year |
 | Credit Event PD multiplier | SVB: sector PD roughly doubled post-announcement |
 
-Shock magnitude scales linearly from 0 at impact=5 (floor) to 100% at impact=10.
-This is a simplification – real scenarios use fat-tail distributions.
+**Scaling & Sector Targeting Rules:**
+- **Linear Severity Scaling:** Shock magnitude scales linearly from 0% at impact=5 (floor) to 100% at impact=10:
+  $$\text{scale} = \max\left(0, \frac{\text{impact} - 5}{5}\right)$$
+  For example, an impact-7.1 event applies exactly $42\%$ of the base shock.
+- **Sector Targeting:** When a news signal targets an entity (e.g. SVB $\to$ Financials), the Credit Event scenario applies:
+  - **Target sector:** Full PD multiplier and an extra spread widening (default $+100$ bps on top of rating spread shock).
+  - **Spillover sectors:** Non-target sectors absorb a documented spillover fraction (default $25\%$ of the spread and credit deterioration), capturing financial contagion without distorting unaffected books.
+- **Commodity and FX Exposures:** The demonstration portfolio positions are USD-denominated wholesale credits, bonds, equities, and IR swaps without direct commodity holdings or unhedged FX exposures.
 
 ---
 
@@ -59,7 +65,8 @@ This is a simplification – real scenarios use fat-tail distributions.
 - Rating distribution biased toward investment grade (BBB and above ~52%)
 - Loan duration proxy = 3.0 years (assumed; actual loans don't always have explicit duration)
 - Bond convexity = duration^1.5 × 0.1 (approximation)
-- IR swaps: pay-fixed, DV01 positive (higher rates → positive MTM; this is simplified)
+- IR swaps: pay-fixed swap where the bank pays fixed and receives floating. When rates rise ($\Delta \text{rate} > 0$), floating cash flows increase, resulting in positive MTM gain ($\Delta PNL = DV01 \times \Delta \text{rate}_{bps}$).
+- Reverse stress testing: Formulated as signed portfolio loss ($pnl\_pct \le -\text{threshold}$), sweeps severity from 0 to 10 and pinpoints the exact breach point via 15-iteration bisection search, returning break impact score, monetary loss, and scaled shock vector (ignoring gains).
 - No credit valuation adjustment (CVA), no wrong-way risk
 
 ---

@@ -312,7 +312,7 @@ with tab_stress:
             trigger_signal = {
                 "event_type": "Credit Event",
                 "impact_score": 8.5,
-                "entity": {"ticker": "SIVB", "name": "SVB Financial Group"},
+                "entity": {"ticker": "SIVB", "name": "SVB Financial Group", "sector": "Financials", "country": "US"},
                 "sentiment_score": -0.82,
                 "sources": [{"snippet": "SVB Financial collapses – regulators seize assets."}],
             }
@@ -323,7 +323,9 @@ with tab_stress:
             min_value=1.0, max_value=10.0,
             value=float(trigger_signal.get("impact_score", 7.0)),
             step=0.1,
+            help="Linear scaling: 0% shock at impact 5.0 to 100% shock at impact 10.0 (e.g. 7.1 applies ~42% of base shock).",
         )
+        st.caption("ℹ️ Linear scaling from impact 5.0 (0%) to 10.0 (100%). Spillover applied to non-target sectors.")
 
     st.markdown("---")
 
@@ -333,8 +335,11 @@ with tab_stress:
     from src.modules.stress_test.revaluation import run_stress_test, reverse_stress_test
 
     event_type = trigger_signal.get("event_type", "Credit Event")
+    entity_obj = trigger_signal.get("entity", {})
+    target_sector = entity_obj.get("sector") if isinstance(entity_obj, dict) else None
+
     shock = get_scenario(event_type, severity_override)
-    result = run_stress_test(portfolio, shock)
+    result = run_stress_test(portfolio, shock, target_sector=target_sector)
 
     # KPIs
     k1, k2, k3, k4 = st.columns(4)
@@ -343,7 +348,8 @@ with tab_stress:
               delta=f"${result['total_pnl']:,.0f}",
               delta_color="inverse")
     k3.metric("P&L %", f"{result['pnl_pct']:.2f}%", delta_color="inverse")
-    k4.metric("Scenario", event_type)
+    target_badge = f" ({target_sector})" if target_sector else ""
+    k4.metric("Scenario", f"{event_type}{target_badge}")
 
     # Waterfall chart
     ac_pnl = result["by_asset_class"]
@@ -409,6 +415,7 @@ with tab_stress:
         "event_type": event_type,
         "impact_score": trigger_signal.get("impact_score"),
         "sentiment_score": trigger_signal.get("sentiment_score"),
+        "target_sector": target_sector,
     }, expanded=False)
 
     # Reverse stress test
@@ -418,15 +425,19 @@ with tab_stress:
         min_value=1.0, max_value=20.0, value=5.0, step=0.5,
     )
     base_shock = get_scenario(event_type, 10.0)
-    rst = reverse_stress_test(portfolio, base_shock, loss_threshold_pct=loss_threshold)
+    rst = reverse_stress_test(portfolio, base_shock, loss_threshold_pct=loss_threshold, target_sector=target_sector)
 
     if rst["break_impact_score"] is not None:
+        loss_text = f" (monetary loss: ${abs(rst['break_monetary_loss']):,.0f})" if rst.get("break_monetary_loss") else ""
         st.success(
-            f"Portfolio breaches **{loss_threshold:.0f}%** loss at impact score "
-            f"**{rst['break_impact_score']:.1f}**"
+            f"Portfolio breaches **{loss_threshold:.1f}%** loss at impact score "
+            f"**{rst['break_impact_score']:.2f}**{loss_text}"
         )
+        if rst.get("scaled_shock"):
+            with st.expander("Break Point Shock Vector (Scaled)"):
+                st.json(rst["scaled_shock"])
     else:
-        st.info(f"Portfolio does not breach {loss_threshold:.0f}% loss in the sweep (max severity tested).")
+        st.info(f"Portfolio does not breach {loss_threshold:.1f}% loss in the sweep (max severity tested).")
 
     sweep_df = pd.DataFrame(rst["sweep_results"])
     fig_rst = px.line(

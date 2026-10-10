@@ -18,13 +18,15 @@ from src.config import SCENARIOS_DIR
 @dataclass
 class ShockVector:
     """Shock magnitudes at impact score = 10 (scaled down for lower scores)."""
-    equity_shock:       float = 0.0    # fractional change, e.g. -0.08 = -8%
-    rate_shock_bps:     float = 0.0    # parallel rate move in basis points
-    spread_shock_bps:   dict  = field(default_factory=dict)  # per rating bucket
-    pd_multiplier:      float = 1.0    # × current PD
-    fx_shock_em:        float = 0.0    # EM FX depreciation
-    oil_shock:          float = 0.0    # oil price change
-    sector_overrides:   dict  = field(default_factory=dict)  # sector-specific spread shocks
+    equity_shock:                   float = 0.0    # fractional change, e.g. -0.08 = -8%
+    rate_shock_bps:                 float = 0.0    # parallel rate move in basis points
+    spread_shock_bps:               dict  = field(default_factory=dict)  # per rating bucket
+    pd_multiplier:                  float = 1.0    # × current PD
+    fx_shock_em:                    float = 0.0    # EM FX depreciation
+    oil_shock:                      float = 0.0    # oil price change
+    sector_overrides:               dict  = field(default_factory=dict)  # sector-specific spread shocks
+    target_sector_spread_extra_bps: float = 0.0    # extra spread widening in target sector
+    spillover_fraction:             float = 1.0    # fraction of shock applied to non-target sectors
 
 
 # ---------------------------------------------------------------------------
@@ -32,10 +34,12 @@ class ShockVector:
 # ---------------------------------------------------------------------------
 BASE_SCENARIOS: dict[str, ShockVector] = {
     "Credit Event": ShockVector(
-        equity_shock     = -0.12,
-        rate_shock_bps   = 0.0,
-        spread_shock_bps = {"AAA": 20, "AA": 40, "A": 80, "BBB": 150, "BB": 300, "B": 500, "CCC": 800},
-        pd_multiplier    = 2.0,
+        equity_shock                   = -0.12,
+        rate_shock_bps                 = 0.0,
+        spread_shock_bps               = {"AAA": 20, "AA": 40, "A": 80, "BBB": 150, "BB": 300, "B": 500, "CCC": 800},
+        pd_multiplier                  = 2.0,
+        target_sector_spread_extra_bps = 100.0,
+        spillover_fraction             = 0.25,
     ),
     "Geopolitical": ShockVector(
         equity_shock     = -0.08,
@@ -52,9 +56,11 @@ BASE_SCENARIOS: dict[str, ShockVector] = {
         pd_multiplier    = 1.2,
     ),
     "Regulatory/Legal": ShockVector(
-        equity_shock     = -0.04,
-        spread_shock_bps = {"BBB": 40, "BB": 80, "B": 150, "CCC": 250},
-        pd_multiplier    = 1.1,
+        equity_shock                   = -0.04,
+        spread_shock_bps               = {"BBB": 40, "BB": 80, "B": 150, "CCC": 250},
+        pd_multiplier                  = 1.1,
+        target_sector_spread_extra_bps = 50.0,
+        spillover_fraction             = 0.25,
     ),
     "Merger/Acquisition": ShockVector(
         equity_shock     = 0.05,   # typically positive
@@ -68,9 +74,11 @@ BASE_SCENARIOS: dict[str, ShockVector] = {
         equity_shock     = 0.03,
     ),
     "Operational/Cyber": ShockVector(
-        equity_shock     = -0.05,
-        spread_shock_bps = {"BBB": 50, "BB": 100, "B": 180},
-        pd_multiplier    = 1.2,
+        equity_shock                   = -0.05,
+        spread_shock_bps               = {"BBB": 50, "BB": 100, "B": 180},
+        pd_multiplier                  = 1.2,
+        target_sector_spread_extra_bps = 50.0,
+        spillover_fraction             = 0.25,
     ),
     "Supply Chain/Commodity": ShockVector(
         equity_shock     = -0.04,
@@ -98,13 +106,15 @@ def scale_scenario(base: ShockVector, impact_score: float, floor: float = 5.0) -
     scale = max(0.0, (impact_score - floor) / (10.0 - floor))
 
     return ShockVector(
-        equity_shock     = base.equity_shock     * scale,
-        rate_shock_bps   = base.rate_shock_bps   * scale,
-        spread_shock_bps = {k: v * scale for k, v in base.spread_shock_bps.items()},
-        pd_multiplier    = 1.0 + (base.pd_multiplier - 1.0) * scale,
-        fx_shock_em      = base.fx_shock_em      * scale,
-        oil_shock        = base.oil_shock        * scale,
-        sector_overrides = base.sector_overrides,
+        equity_shock                   = base.equity_shock     * scale,
+        rate_shock_bps                 = base.rate_shock_bps   * scale,
+        spread_shock_bps               = {k: v * scale for k, v in base.spread_shock_bps.items()},
+        pd_multiplier                  = 1.0 + (base.pd_multiplier - 1.0) * scale,
+        fx_shock_em                    = base.fx_shock_em      * scale,
+        oil_shock                      = base.oil_shock        * scale,
+        sector_overrides               = base.sector_overrides,
+        target_sector_spread_extra_bps = base.target_sector_spread_extra_bps * scale,
+        spillover_fraction             = base.spillover_fraction,
     )
 
 
@@ -120,13 +130,13 @@ def save_scenarios_yaml() -> None:
     out = {}
     for name, sv in BASE_SCENARIOS.items():
         out[name] = {
-            "equity_shock":      sv.equity_shock,
-            "rate_shock_bps":    sv.rate_shock_bps,
-            "spread_shock_bps":  sv.spread_shock_bps,
-            "pd_multiplier":     sv.pd_multiplier,
-            "fx_shock_em":       sv.fx_shock_em,
-            "oil_shock":         sv.oil_shock,
-            "note":              "ASSUMPTION – documented defaults. See docs/ASSUMPTIONS.md.",
+            "equity_shock":                   sv.equity_shock,
+            "rate_shock_bps":                 sv.rate_shock_bps,
+            "spread_shock_bps":               sv.spread_shock_bps,
+            "pd_multiplier":                  sv.pd_multiplier,
+            "target_sector_spread_extra_bps": sv.target_sector_spread_extra_bps,
+            "spillover_fraction":             sv.spillover_fraction,
+            "note":                           "ASSUMPTION – documented defaults. See docs/ASSUMPTIONS.md.",
         }
     path = SCENARIOS_DIR / "scenarios.yaml"
     with open(path, "w") as fh:
