@@ -52,7 +52,7 @@ def generate_architecture_diagram():
     # Stage 1: Sources
     draw_box(0.5, 3.2, 2.4, 3.8, 
              "1. DATA SOURCES", "Multi-modal Text",
-             ["SVB Replay (JSONL)", "Independent News/Social", "Kaggle Adapters (Pluggable)", "NewsAPI (Adapter Stub)"],
+             ["SVB Replay (JSONL)", "CNBC News (500 samples)", "Stock Tweets (300 samples)", "NewsAPI (Adapter Stub)"],
              bg_color='#131B2E', border_color='#3B82F6', title_color='#93C5FD')
 
     # Stage 2: Ingestion

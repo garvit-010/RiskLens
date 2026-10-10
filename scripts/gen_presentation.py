@@ -229,7 +229,7 @@ def create_presentation():
         ("Wholesale Stress Testing Engine", HexColor("#EF4444"), [
             ("300-Position Wholesale Portfolio:", "Corporate loans, bonds, IR swaps, and equities with realistic seeds."),
             ("Credit Revaluation:", "Delta EL = Delta PD * LGD * EAD + Spread MTM duration-convexity approximation."),
-            ("Reverse Stress Testing:", "Bisection search solves for the exact headline impact score that breaks 5% equity.")
+            ("Reverse Stress Testing:", "Bisection search solves for exact headline impact score breaking 2.5% loss limit.")
         ])
     ]
 
@@ -269,34 +269,35 @@ def create_presentation():
     c.rect(65, 375, 380, 26, fill=True, stroke=False)
     c.setFillColor(text_white)
     c.setFont("Helvetica-Bold", 9.5)
-    c.drawString(75, 383, "Model")
-    c.drawString(180, 383, "Accuracy")
-    c.drawString(280, 383, "Macro-F1")
-    c.drawString(370, 383, "Domain Fit")
+    c.drawString(75, 383, "Model / Mapping")
+    c.drawString(195, 383, "Accuracy")
+    c.drawString(275, 383, "Macro-F1")
+    c.drawString(365, 383, "Role")
 
     # Table rows
     rows_s = [
-        ("FinBERT", "87.6%", "0.876", "High (Domain Transformer)", HexColor("#60A5FA")),
-        ("VADER (Naive)", "57.1%", "0.487", "Baseline (General Lexicon)", HexColor("#9CA3AF"))
+        ("FinBERT (Argmax)", "97.2%", "0.963", "Academic Benchmark", HexColor("#60A5FA")),
+        ("FinBERT (Threshold)", "87.6%", "0.876", "Risk Engine Shock Scaling", HexColor("#38BDF8")),
+        ("VADER (Lexicon)", "57.1%", "0.487", "Rule Baseline", HexColor("#9CA3AF"))
     ]
     ry = 345
     for m, acc, f1, fit, col in rows_s:
         c.setFillColor(col)
-        c.setFont("Helvetica-Bold", 9.5)
+        c.setFont("Helvetica-Bold", 9)
         c.drawString(75, ry, m)
-        c.setFont("Helvetica", 9.5)
-        c.drawString(180, ry, acc)
-        c.drawString(280, ry, f1)
-        c.drawString(370, ry, fit)
-        ry -= 26
+        c.setFont("Helvetica", 9)
+        c.drawString(195, ry, acc)
+        c.drawString(275, ry, f1)
+        c.drawString(365, ry, fit)
+        ry -= 24
 
     c.setFillColor(HexColor("#10B981"))
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(65, 280, "Gain: +30.5% Accuracy / +0.389 Macro-F1 (Full n=2,264 Subset)")
+    c.setFont("Helvetica-Bold", 9.5)
+    c.drawString(65, 268, "Negative Class Recall: FinBERT 98.7% (F1: 0.91) vs VADER 22.4% (F1: 0.28).")
     c.setFillColor(text_sub)
-    c.setFont("Helvetica", 8.8)
-    c.drawString(65, 262, "Negative Class Recall: FinBERT 98.7% (F1: 0.91) vs VADER 22.4% (F1: 0.28).")
-    c.drawString(65, 248, "Captures critical credit downside where naive lexicons miss 78% of distressed signals.")
+    c.setFont("Helvetica", 8.5)
+    c.drawString(65, 252, "FinBERT captures critical credit downside where naive lexicons miss 78% of distress.")
+    c.drawString(65, 238, "Engine uses continuous net score P(pos)-P(neg) in [-1, 1] to scale portfolio shocks smoothly.")
 
     # Event Classifier Card
     draw_card(495, 230, 420, 225, border=HexColor("#8B5CF6"))
@@ -328,25 +329,26 @@ def create_presentation():
         c.drawString(820, ry, inf)
         ry -= 26
 
-    c.setFillColor(HexColor("#10B981"))
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(515, 280, "Out-of-Fold Cross-Validation: High Credit Event F1 (0.92)")
+    c.setFillColor(HexColor("#F59E0B"))
+    c.setFont("Helvetica-Bold", 9.5)
+    c.drawString(515, 276, "Honest Finding: Keyword Rules Do Most of the Work (n=67)")
     c.setFillColor(text_sub)
-    c.setFont("Helvetica", 8.8)
-    c.drawString(515, 262, "MiniLM embeddings provide calibrated continuous confidence and generalize")
-    c.drawString(515, 248, "to unseen phrases; transparent keyword fallback activates when confidence < 0.55.")
+    c.setFont("Helvetica", 8.3)
+    c.drawString(515, 260, "At n=67 the embedding classifier adds no measurable gain over keyword rules;")
+    c.drawString(515, 248, "keyword rules do most of the work. Keywords were refined while reviewing these")
+    c.drawString(515, 236, "labels, so the baseline is not fully out-of-sample (0 LR overrides at 0.55 threshold).")
 
     # Bottom SVB Case Study Card
     draw_card(45, 60, 870, 155, border=HexColor("#F59E0B"))
     c.setFillColor(accent_amber)
     c.setFont("Helvetica-Bold", 13)
-    c.drawString(65, 185, "3. LIVE REPLAY CASE STUDY: SILICON VALLEY BANK (MARCH 8-13, 2023)")
+    c.drawString(65, 185, "3. LIVE REPLAY CASE STUDY: SILICON VALLEY BANK (MARCH 8-21, 2023)")
 
     svb_points = [
         ("Event Ingestion & Credibility:", "30 curated chronological headlines & tweets replayed with independent source credibility (0.85 news, 0.55 social)."),
-        ("Primary Demo Trigger:", "March 8, 2023: 'SVB stock plunges 60% as bank run fears intensify' triggers Credit Event at max impact 10.0."),
+        ("Primary Demo Trigger:", "March 9, 2023 (15:00 UTC): 'SVB stock plunges 60% as bank run fears intensify' triggers Credit Event at max impact 10.0."),
         ("Credit-Aware Sector Targeting:", "Hits Financials (-$42.1M loss, >2.7x other sectors) with 25% spillover to others, producing -$142M net loss (-3.24%)."),
-        ("Reverse Stress Test:", "15-step bisection search pinpoints portfolio 2.5% loss breach at Impact 8.85 ($109.7M monetary loss).")
+        ("Signed Reverse Stress Test:", "15-step bisection search pinpoints portfolio 2.5% loss limit breach at Impact 8.85 ($109.7M loss).")
     ]
     sy = 155
     for stitle, sdesc in svb_points:

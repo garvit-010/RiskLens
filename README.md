@@ -6,15 +6,14 @@
 **Demo Video Link:** `[TODO: human to fill]`  
 **Slide Deck Link:** `[TODO: human to fill]`  
 
-> **Disclaimer:** Unrelated to the commercial FAIR-based cyber-risk product of the same name.  
-> **Note for Jury:** Repository name is formatted as `<college>-<candidate-name>-hackathon` per competition submission guidelines.
+> **Disclaimer:** Unrelated to the commercial FAIR-based cyber-risk product of the same name.
 
 ---
 
 ## 1. Project Overview & Approach
 
 **RiskLens** is an explainable, auditable News-to-Risk intelligence platform built for wholesale banking risk teams. Unstructured textual feeds (financial news and market social commentary) are ingested, cleaned, and processed through a domain-specific multi-stage NLP pipeline. Every signal emitted includes:
-- **Calibrated sentiment scoring** (FinBERT domain transformer with VADER rule-based fallback).
+- **Domain-informed sentiment scoring** (FinBERT domain transformer with VADER rule-based fallback).
 - **Taxonomy event classification** (11 wholesale banking risk types via MiniLM embeddings + logistic regression + keyword rules).
 - **Auditable impact severity score (1–10)** derived with explicit multiplicative attribution across base event severity, sentiment intensity, source credibility, novelty decay, and corroboration boosts.
 
@@ -32,8 +31,8 @@ The entire system operates **100% offline with zero external API key requirement
 [DATA INGESTION]          [NORMALIZATION]           [NLP RISK ENGINE]          [API & DISTRIBUTION]
  SVB Replay News    ──┐    Language Filter (EN)      Entity Linking (S&P 100)   JSONL Signal Cache
  SVB Replay Social  ──┼──> Exact Hash Dedup     ──>  FinBERT (CUDA fp16)    ──> FastAPI (/signals)
- Kaggle News (stub) ──┤    RapidFuzz Similarity      MiniLM Event Classifier           │
- Kaggle Tweets (stub)─┘    Novelty Exponential       Auditable Impact Formula          ├──> Module B: Stress Testing
+ CNBC News (sample) ──┤    RapidFuzz Similarity      MiniLM Event Classifier           │
+ Stock Tweets(sample)─┘    Novelty Exponential       Auditable Impact Formula          ├──> Module B: Stress Testing
                            Decay Window              (Base × Sent × Cred × Corr)       └──> Module A: Rebalancer
 ```
 
@@ -51,16 +50,16 @@ Every dataset claimed in this repository corresponds directly to local files in 
 
 | Dataset | Source / Description | Status in Repository | Shipped Location |
 |---|---|---|---|
-| **SVB Collapse Replay** | Curated chronological headlines & tweets (March 8–13, 2023) | **Shipped in repo** (30 documents: 18 news, 12 social) | `data/raw_samples/replay_svb.jsonl` |
+| **SVB Collapse Replay** | Curated chronological headlines & tweets (March 8–21, 2023) | **Shipped in repo** (30 documents: 19 news, 11 social) | `data/raw_samples/replay_svb.jsonl` |
 | **Financial PhraseBank** | Official 100% annotator agreement subset (Malo et al.) | **Shipped in repo** (2,264 sentences) | `data/raw_samples/phrasebank.csv` |
 | **Sentiment Eval Sample** | Curated financial headline sample with ground truth | **Shipped in repo** (60 sentences, 95% CI ±6 pp) | `data/raw_samples/sentiment_sample_n60.csv` |
-| **Event Classification** | Curated banking distress & corporate headlines (11 classes) | **Shipped in repo** (68 headlines, out-of-fold CV) | `data/labeled_eval/labels.csv` |
+| **Event Classification** | Curated banking distress & corporate headlines (11 classes) | **Shipped in repo** (67 headlines, out-of-fold CV) | `data/labeled_eval/labels.csv` |
 | **Financial News Sample** | Sampled CNBC market headlines subset | **Shipped in repo** (500 headlines) | `data/raw_samples/news.csv` |
 | **Stock Tweets Sample** | Sampled stock market tweets subset | **Shipped in repo** (300 tweets) | `data/raw_samples/tweets.csv` |
 | **Wholesale Portfolio** | Synthetic corporate loans, bonds, swaps, equities (seed 42) | **Shipped in repo** (300 positions, ~$4.39B MTM) | `data/portfolio/portfolio.csv` |
-| **Scenario Shock Library** | Calibrated rating spread widening & PD multipliers | **Shipped in repo** (11 wholesale risk scenarios) | `data/scenarios/scenarios.yaml` |
+| **Scenario Shock Library** | Domain-informed rating spread widening & PD multipliers | **Shipped in repo** (11 wholesale risk scenarios) | `data/scenarios/scenarios.yaml` |
 | **Historical Price Cache** | Daily stock prices for 25 tickers (AAPL, TSLA, SIVB, etc.) | **Shipped in repo** (offline backtesting ready) | `data/raw_samples/prices/` |
-| **Precomputed Signals** | Fully computed neural signals for instant replay | **Shipped in repo** (30 signals with full audit trail) | `data/output/signals.jsonl` |
+| **Precomputed Signals** | Fully computed neural signals for instant replay | **Shipped in repo** (820 signals: 30 SVB replay [19 news, 11 social], 496 CNBC news, 294 stock tweets) | `data/output/signals.jsonl` |
 
 > [!NOTE]
 > All portfolio positions are synthetic with a fixed seed (seed 42). No proprietary S&P Global, Crisil, or client data is used. See [data/README.md](data/README.md) for full integrity statements.
@@ -97,17 +96,19 @@ python -m src.eval.run_eval     # Run empirical model benchmark evaluation
 
 ### A. Model Performance & Benchmarks (from `docs/results.md`)
 
-| Task / Benchmark | Model | Metric | Baseline Comparison | Empirical Notes |
+| Task / Benchmark | Model / Mapping | Metric | Baseline Comparison | Empirical Notes |
 |---|---|---|---|---|
-| **Sentiment Scoring** | **ProsusAI/finbert** (fp16) | **87.6% Accuracy**<br>**0.876 Macro-F1** | VADER (Naive Lexicon):<br>57.1% Accuracy, 0.487 F1 | Evaluated on full Financial PhraseBank 100% agreement subset ($n=2,264$). Negative Class: FinBERT **0.987 Recall / 0.910 F1** vs VADER 0.224 Recall / 0.279 F1. |
-| **Event Classification** | **MiniLM-L6-v2 + LR** (Hybrid) | **0.679 Macro-F1**<br>(Credit Event F1: **0.923**) | Keyword Baseline:<br>0.679 Macro-F1 | Evaluated via **Stratified Cross-Validation** on out-of-fold data ($n=68$). MiniLM provides calibrated continuous confidence and unseen generalization. |
-| **System Throughput** | FinBERT on GPU | **37.8 docs/sec** | Real-time stream capable | Benchmarked on NVIDIA GTX 1650 Ti (4GB VRAM, CUDA fp16). |
+| **Sentiment (Argmax)** | **ProsusAI/finbert** (fp16) | **97.2% Accuracy**<br>**0.963 Macro-F1** | VADER (Rule Baseline):<br>57.1% Accuracy, 0.487 F1 | Standard academic argmax mapping (`max(pos, neg, neu)`). Negative Class: FinBERT **0.984 Recall / 0.943 F1**. |
+| **Sentiment (Threshold)** | **ProsusAI/finbert** (Engine) | **87.6% Accuracy**<br>**0.876 Macro-F1** | VADER (Rule Baseline):<br>57.1% Accuracy, 0.487 F1 | Continuous net score ($P(pos) - P(neg)$, threshold $\pm 0.1$), **used in engine** for shock scaling. Negative Recall: **0.987**. |
+| **Event Classification** | **MiniLM-L6-v2 + LR** (Hybrid) | **0.679 Macro-F1**<br>(Credit Event F1: **0.923**) | Keyword Baseline:<br>0.679 Macro-F1 | Evaluated via **Stratified Cross-Validation** on out-of-fold data ($n=67$). At n=67 the embedding classifier adds no measurable gain over keyword rules; keyword rules do most of the work. Keywords were refined while reviewing these labels, so the baseline is not fully out-of-sample. |
+| **System Throughput** | FinBERT on GPU | **43.3 docs/sec** | Real-time stream capable | Benchmarked on NVIDIA GTX 1650 Ti (4GB VRAM, CUDA fp16 batched). |
 
 > [!NOTE]
-> **Sentiment Evaluation Caveats:**
-> 1. **Optimistic Ceiling:** `Sentences_AllAgree` is the easiest PhraseBank subset (100% annotator agreement), and FinBERT was pre-trained and fine-tuned on Financial PhraseBank, so accuracy figures represent an optimistic performance ceiling.
-> 2. **Macro-F1 vs Accuracy Gap:** The gap between overall accuracy and macro-F1 reflects performance on minority classes (e.g. Negative sentiment, $n=303$). FinBERT captures **98.7% of negative credit signals** (recall 0.987), whereas naive VADER misses the majority (recall 0.224).
-> 3. **Date Ranges & Backtest Alignment:** News covers 2017–2020; Tweets cover Sep 2021–Sep 2022; Cached prices cover Sep 2021–Sep 2022. The Module A backtest runs strictly over the 2021–2022 tweet era. *No historical backtest is performed around SVB (March 2023) because price data ends in Sep 2022.* The SVB scenario is a curated forward synthetic stress test, and impact scores rely on transparent domain multipliers rather than March 2023 econometric event-study regressions.
+> **Sentiment Evaluation Notes & Caveats:**
+> 1. **Mapping Difference & Engine Usage:** FinBERT argmax mapping achieves 97.2% accuracy / 0.963 macro-F1, whereas the engine's continuous net score threshold mapping ($P(pos) - P(neg)$ at $\pm 0.1$) achieves 87.6% accuracy / 0.876 macro-F1 because subtle sentiment tilts in neutral text shift predictions away from discrete neutral; the RiskLens engine uses the continuous net score ($[-1, 1]$) directly to scale portfolio stress shocks linearly.
+> 2. **500-sample vs 2,264-sample Discrepancy:** An earlier exploratory benchmark on 500 samples scored 95.6% because taking the head slice (`df.head(500)`) had an unrepresentative proportion of unambiguous, high-conviction phrases; the full 2,264-sentence corpus covers the complete spectrum of nuanced corporate disclosures.
+> 3. **Optimistic Ceiling:** `Sentences_AllAgree` is the easiest Financial PhraseBank subset (100% annotator agreement), and FinBERT was pre-trained and fine-tuned on Financial PhraseBank, so accuracy figures represent an optimistic performance ceiling.
+> 4. **Date Ranges & Backtest Alignment:** News covers 2017–2020; Tweets cover Sep 2021–Sep 2022; Cached prices cover Sep 2021–Sep 2022. The Module A backtest runs strictly over the 2021–2022 tweet era. *No historical backtest is performed around SVB (March 2023) because price data ends in Sep 2022.* The SVB scenario is a curated forward synthetic stress test, and impact scores rely on transparent domain multipliers rather than March 2023 econometric event-study regressions.
 
 ### B. Module B: SVB Collapse Stress Test Revaluation
 
@@ -123,13 +124,14 @@ Total Portfolio Loss:     -$142,033,392   (-3.24% Net Loss)
 
 - **Asset Class Breakdown:** Corporate Loans account for `-$101,244,094` (71.3% of loss) due to PD doubling and spread widening; Bonds absorb `-$36,220,596` (25.5%); Equities lose `-$4,568,702` (3.2%); Pay-fixed IR Swaps have zero rate move in a pure credit scenario (`$0`).
 - **Credit-Aware Sector Targeting:** Positions in the target sector (`Financials`) absorb `-$42,104,976` loss (>2.7× higher than any other sector). Non-target sectors absorb a documented `25%` spillover fraction.
-- **Signed Reverse Stress Test:** Using a 15-iteration bisection search, the portfolio breaches a 2.5% loss threshold at **Impact Score 8.85** (`-$109.7M` monetary loss). Favorable scenario moves (gains) are strictly ignored.
+- **Signed Reverse Stress Test:** Using a 15-iteration bisection search, the portfolio breaches a 2.5% loss limit (internal risk tolerance threshold; 5% is not reached under sector-targeted shocks, and this is not a regulatory capital breach) at **Impact Score 8.85** (`-$109.7M` monetary loss). Favorable scenario moves (gains) are strictly ignored.
 
 ### C. Module A: Tactical Index Rebalancer Tilts
 
 Replaying the 30 chronological SVB headlines automatically penalizes distressed credit exposures while reallocating capital to defensive quality:
-- **Underweighted:** `SIVB` (-2.14% tilt to 4.53% weight floor), `MS` (-1.05%), `GS` (-0.97%), `WFC` (-0.49%), `JPM` (-0.34%).
-- **Overweighted:** Flight-to-safety beneficiaries `C` (+1.48%), `BAC` (+0.58%), and defensive megacaps (+0.37%).
+- **Underweighted:** `SIVB` (-1.38% tilt to 5.28% weight, accumulated sentiment -1.20), `JPM` (-1.16% tilt to 5.51%, sentiment -1.00), `MS` (-1.08% tilt to 5.58%, sentiment -0.94), `GS` (-1.03% tilt to 5.64%, sentiment -0.89), `WFC` (-0.35% tilt to 6.32%, sentiment -0.40).
+- **Overweighted:** Flight-to-safety deposit winner `BAC` (+1.91% tilt to 8.58% weight, accumulated sentiment +0.69); and defensive neutral megacaps (`AAPL`, `MSFT`, `GOOGL`, `AMZN`, `C`, `XOM`, `CVX`, `JNJ`, `META` at +0.34% tilt to 7.01% weight) absorbing reallocated capital.
+- *Note on sentiment column:* Values reflect exponentially decayed sentiment accumulation over consecutive events (which can aggregate outside $[-1, 1]$ when multiple severe events occur before elapsed-time decay resets the EMA). Citigroup (`C`) sits at neutral baseline (+0.34% tilt) rather than false entity-matching inflation.
 
 ---
 

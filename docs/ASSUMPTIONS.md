@@ -35,10 +35,10 @@ and discuss it as a "next step" in the deck.
 
 ## 2. Scenario Shock Magnitudes and Sector Targeting
 
-**STATUS: DOCUMENTED ASSUMPTIONS & SECTOR SENSITIVITY**
+**STATUS: DOCUMENTED DOMAIN-INFORMED ASSUMPTIONS & SECTOR SENSITIVITY**
 
 All shock magnitudes (equity %, rate bps, spread bps, PD multipliers) are
-calibrated for an impact score = 10 based on historical stress events:
+domain-informed assumptions for an impact score = 10 based on historical stress events:
 
 | Scenario | Reference events used as inspiration |
 |---|---|
@@ -66,7 +66,7 @@ calibrated for an impact score = 10 based on historical stress events:
 - Loan duration proxy = 3.0 years (assumed; actual loans don't always have explicit duration)
 - Bond convexity = duration^1.5 × 0.1 (approximation)
 - IR swaps: pay-fixed swap where the bank pays fixed and receives floating. When rates rise ($\Delta \text{rate} > 0$), floating cash flows increase, resulting in positive MTM gain ($\Delta PNL = DV01 \times \Delta \text{rate}_{bps}$).
-- Reverse stress testing: Formulated as signed portfolio loss ($pnl\_pct \le -\text{threshold}$), sweeps severity from 0 to 10 and pinpoints the exact breach point via 15-iteration bisection search, returning break impact score, monetary loss, and scaled shock vector (ignoring gains).
+- Reverse stress testing: Formulated as signed portfolio loss ($pnl\_pct \le -\text{threshold}$), sweeps severity from 0 to 10 and pinpoints the exact breach point via 15-iteration bisection search, returning break impact score, monetary loss, and scaled shock vector (ignoring gains). The 2.5% threshold is an internal portfolio loss limit (5% is not reached under sector-targeted shocks), not a regulatory capital breach.
 - No credit valuation adjustment (CVA), no wrong-way risk
 
 ---
@@ -81,8 +81,8 @@ calibrated for an impact score = 10 based on historical stress events:
 
 ## 5. Model Assumptions & Evaluation Methodology
 
-- **FinBERT (ProsusAI/finbert)**: Specialized domain transformer evaluated on the full 2,264 sentences of the Financial PhraseBank 100% agreement subset. Because FinBERT was fine-tuned on PhraseBank, performance (87.6% accuracy, 0.876 macro-F1) represents an optimistic performance ceiling. Notably, FinBERT achieves 98.7% recall on negative credit sentiment (vs 22.4% for VADER).
-- **MiniLM + LR (Hybrid Event Classifier)**: Evaluated rigorously via **Stratified Cross-Validation on out-of-fold predictions** ($n=68$) to prevent data leakage. MiniLM achieves 0.6793 macro-F1 (Credit Event F1: 0.923). MiniLM embeddings provide calibrated continuous confidence and unseen generalization; keyword fallback operates deterministically when confidence is low.
+- **FinBERT (ProsusAI/finbert)**: Specialized domain transformer evaluated on the full 2,264 sentences of the Financial PhraseBank 100% agreement subset. FinBERT achieves 97.2% accuracy / 0.963 macro-F1 under academic argmax mapping, and 87.6% accuracy / 0.876 macro-F1 under the continuous net score threshold mapping ($P(pos) - P(neg)$ at $\pm 0.1$) used in the risk engine. Because FinBERT was fine-tuned on PhraseBank, performance represents an optimistic performance ceiling. Notably, FinBERT captures 98.7% of negative credit signals under the threshold mapping (vs 22.4% for VADER).
+- **MiniLM + LR (Hybrid Event Classifier)**: Evaluated rigorously via **Stratified Cross-Validation on out-of-fold predictions** ($n=67$). At n=67 the embedding classifier adds no measurable gain over keyword rules; keyword rules do most of the work. Keywords were refined while reviewing these labels, so the baseline is not fully out-of-sample. In cross-validation at confidence threshold 0.55 across 11 classes, 0 of 67 out-of-fold predictions come from LR and 67 come from keyword fallback rules (0.6793 macro-F1).
 - **VADER**: General-purpose lexicon baseline; provided for CPU fallback and benchmarking.
 
 ---
@@ -101,17 +101,17 @@ calibrated for an impact score = 10 based on historical stress events:
   - CNBC News covers 2017 to 2020.
   - Stock Market Tweets cover September 2021 to September 2022.
   - Cached Price Histories (`data/raw_samples/prices/`) cover September 2021 to September 2022.
-  - SVB Collapse Replay covers March 8–13, 2023 (curated synthetic stress-testing scenario).
+  - SVB Collapse Replay covers March 8–21, 2023 (curated chronological replay).
 - **Backtest Scope:** The Module A index rebalancer backtest executes strictly over the 2021–2022 tweet and price period. *No historical backtest is performed around SVB (March 2023) because historical prices end in September 2022.*
 - **Illustrative Nature:** EMA alpha = 0.3, sentiment half-life = 24h, sensitivity $k=0.5$. Sentiment tilt demonstrates automated risk integration, not causal alpha generation.
 
 ---
 
-## 8. Evaluation Limitations & Calibration Honesty
+## 8. Evaluation Limitations & Honest Assumptions
 
-- **Sentiment Eval:** Evaluated on all 2,264 sentences of Financial PhraseBank (100% agreement subset). Per-class metrics transparently disclose performance across Negative, Neutral, and Positive polarities.
-- **Event Classifier Eval:** Evaluated via out-of-fold Stratified Cross-Validation ($n=68$). The reference set is modest; an institutional production system should scale to 500+ annotated regulatory headlines.
-- **Impact Calibration vs Abnormal Returns:** Impact scores use documented domain severity values and multipliers rather than econometric regressions against March 2023 SVB abnormal stock returns (no SVB price data exists in the cache).
+- **Sentiment Eval:** Evaluated on all 2,264 sentences of Financial PhraseBank (100% agreement subset). Per-class metrics transparently disclose performance across Negative, Neutral, and Positive polarities under both discrete argmax and engine threshold mappings.
+- **Event Classifier Eval:** Evaluated via out-of-fold Stratified Cross-Validation ($n=67$). At n=67 the embedding classifier adds no measurable gain over keyword rules; keyword rules do most of the work. Keywords were refined while reviewing these labels, so the baseline is not fully out-of-sample.
+- **Impact Calibration vs Abnormal Returns:** Impact scores use documented domain-informed base severity values and linear multipliers rather than econometric regressions against March 2023 SVB abnormal stock returns (no SVB price data exists in the cache).
 - **All results in `docs/results.md` are empirically computed from local runs with zero fabrication.**
 
 ---

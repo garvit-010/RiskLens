@@ -105,6 +105,24 @@ def sentiment_finbert(text: str) -> tuple[float, float]:
         return 0.0, 0.5
 
 
+def sentiment_finbert_probs(text: str) -> dict[str, float]:
+    """Return raw FinBERT class probabilities: {'positive': float, 'negative': float, 'neutral': float}."""
+    _load_finbert()
+    if _finbert_pipeline is None:
+        comp, _ = sentiment_vader(text)
+        if comp > 0.05:
+            return {"positive": 0.7, "negative": 0.1, "neutral": 0.2}
+        elif comp < -0.05:
+            return {"positive": 0.1, "negative": 0.7, "neutral": 0.2}
+        return {"positive": 0.1, "negative": 0.1, "neutral": 0.8}
+    try:
+        results = _finbert_pipeline(text[:512])[0]
+        return {r["label"].lower(): float(r["score"]) for r in results}
+    except Exception as exc:
+        logger.warning("FinBERT inference failed: %s", exc)
+        return {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
+
+
 def sentiment_vader(text: str) -> tuple[float, float]:
     """
     Return (score, confidence) using VADER.

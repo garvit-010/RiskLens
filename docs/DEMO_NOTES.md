@@ -38,10 +38,10 @@ The portfolio generator initializes 300 positions across 4 wholesale asset class
 - **Spillover Sectors:** Non-target sectors (Telecom, Industrials, Energy) absorb exactly 25% of the base spread and credit deterioration shock, capturing systemic contagion without artificial book-wide damage.
 
 ### Reverse Stress Test Break Points
-- **2.0% Loss Threshold:** Breached at impact score **8.08**
-- **2.5% Loss Threshold:** Breached at impact score **8.85**
-- **3.0% Loss Threshold:** Breached at impact score **9.63**
-*(Note: Under un-targeted uniform credit shock across all sectors, a 5.0% loss breach occurs at impact score **7.54**).*
+- **2.0% Loss Limit:** Breached at impact score **8.08**
+- **2.5% Loss Limit:** Breached at impact score **8.85**
+- **3.0% Loss Limit:** Breached at impact score **9.63**
+*(Note: The 2.5% threshold represents an internal portfolio loss limit, not a regulatory capital breach; a 5.0% portfolio loss is not reached under sector-targeted shocks).*
 
 ---
 
@@ -49,16 +49,17 @@ The portfolio generator initializes 300 positions across 4 wholesale asset class
 
 Running the rebalancer across the 30 replay signals produces tactical tilts across the 15 S&P 100 universe stocks (starting from equal-weight 6.67%):
 
-| Ticker | Sentiment Score | Final Weight | Tilt vs Base | Rationale |
+| Ticker | Accumulated Decayed Sentiment | Final Weight | Tilt vs Base | Rationale |
 |---|---|---|---|---|
-| **SIVB** | -2.14 (decayed) | **4.53%** | **-2.14%** | Maximum penalty down to turnover cap boundary |
-| **MS** | -0.93 | **5.61%** | **-1.05%** | Commercial real estate exposure warnings |
-| **GS** | -0.86 | **5.70%** | **-0.97%** | Growth forecast cuts & lending tightening |
-| **WFC** | -0.51 | **6.18%** | **-0.49%** | Contagion & CRE exposure |
-| **JPM** | -0.41 | **6.32%** | **-0.34%** | Initial bank contagion pressure |
-| **Megacaps (AAPL, MSFT, etc.)** | 0.00 | **7.03%** | **+0.37%** | Neutral reallocation beneficiaries |
-| **BAC** | +0.11 | **7.25%** | **+0.58%** | Deposit inflow beneficiary |
-| **C** | +0.51 | **8.15%** | **+1.48%** | Emergency rescue & acquisition facilitator |
+| **SIVB** | -1.20 | **5.28%** | **-1.38%** | Distressed credit penalty (bank run & plunge) |
+| **JPM** | -1.00 | **5.51%** | **-1.16%** | Contagion pressure & interbank risk |
+| **MS** | -0.94 | **5.58%** | **-1.08%** | Commercial real estate & financing scrutiny |
+| **GS** | -0.89 | **5.64%** | **-1.03%** | Growth forecast cuts & lending tightening |
+| **WFC** | -0.40 | **6.32%** | **-0.35%** | Contagion & regional bank scrutiny |
+| **Megacaps (AAPL, MSFT, GOOGL, AMZN, C, XOM, CVX, JNJ, META)** | 0.00 | **7.01%** | **+0.34%** | Neutral baseline; absorb reallocated capital |
+| **BAC** | +0.69 | **8.58%** | **+1.91%** | Documented flight-to-safety deposit inflows |
+
+*Note on Sentiment Column:* Sentiment values reflect exponentially decayed accumulation over consecutive events (which can aggregate outside $[-1, 1]$ when multiple severe events occur before elapsed-time decay resets the EMA). Citigroup (`C`) sits at neutral baseline (+0.34% tilt) rather than false entity-matching inflation.
 
 ---
 
@@ -79,13 +80,13 @@ Running the rebalancer across the 30 replay signals produces tactical tilts acro
 ### Minute 2:30 – 3:30: Severity Scaling & Reverse Stress Testing
 1. Adjust the **Severity Slider**: Point out linear scaling formula ($\text{scale} = (\text{impact}-5)/5$); impact 7.1 applies 42% of base shock, impact 5 applies 0%.
 2. Scroll to **Reverse Stress Test**:
-   - Set Loss Threshold to **2.5%**.
+   - Set Loss Threshold to **2.5%** (internal portfolio loss limit).
    - Show the bisection search result: breaches at impact **8.85**.
    - Explain signed loss logic: reverse stress only flags true losses ($PnL\% \le -threshold$), ignoring gains.
 
 ### Minute 3:30 – 4:30: Tactical Rebalancing (Module A)
 1. Switch to **Rebalancer** tab.
-2. Review the weight tilt table: SIVB underweighted by -2.14% while stable liquid names receive defensive inflows.
+2. Review the weight tilt table: SIVB underweighted by -1.38% while stable liquid names receive defensive inflows.
 3. Show the dynamic weight stacked area chart illustrating continuous exponential decay over time.
 
 ### Minute 4:30 – 5:00: Transparency & Q&A

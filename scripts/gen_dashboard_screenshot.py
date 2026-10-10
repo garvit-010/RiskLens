@@ -42,7 +42,7 @@ def generate_dashboard_screenshot():
     ax.add_patch(patches.FancyBboxPatch((0.6, 7.85), 14.8, 0.65, boxstyle="round,pad=0.1,rounding_size=0.1",
                                         facecolor="#161B22", edgecolor="#30363D", lw=1))
     ax.text(0.9, 8.28, "Triggering Signal:", fontsize=10, fontweight="bold", color="#8B949E", va="center")
-    ax.text(2.4, 8.28, "[2023-03-08 15:00] SIVB – Credit Event (Impact 10.0)", fontsize=11, fontweight="bold", color="#F0F6FC", va="center")
+    ax.text(2.4, 8.28, "[2023-03-09 15:00] SIVB – Credit Event (Impact 10.0)", fontsize=11, fontweight="bold", color="#F0F6FC", va="center")
     ax.text(0.9, 8.02, "Snippet: \"SVB Financial stock plunges 60% as bank run fears intensify among tech clients\"  |  Target: Financials (US)  |  Sentiment: -0.96",
             fontsize=9.5, color="#8B949E", va="center")
 
