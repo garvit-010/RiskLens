@@ -11,7 +11,7 @@ Dataset: 60 labeled examples
 | FinBERT | 0.9333 | 0.9346 |
 | VADER   | 0.7167 | 0.7134 |
 
-**Throughput:** 5.7 docs/sec (FinBERT, CPU/GPU)
+**Throughput:** 5.3 docs/sec (FinBERT, CPU/GPU)
 
 ## Event Classification: MiniLM+LR vs Keyword Baseline
 
