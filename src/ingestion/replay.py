@@ -77,7 +77,7 @@ class ReplayAdapter(BaseAdapter):
 
             yield Document(
                 id=rec.get("id", ""),
-                source=self.name(),
+                source=rec.get("source", self.name()),
                 timestamp=ts,
                 text=rec.get("text", ""),
                 url=rec.get("url"),

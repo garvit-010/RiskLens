@@ -46,6 +46,8 @@ BASE_SEVERITY: dict[str, float] = {
 # Source credibility weights (ASSUMPTION)
 # ---------------------------------------------------------------------------
 SOURCE_CREDIBILITY: dict[str, float] = {
+    "replay_news":   0.85,
+    "replay_social": 0.55,
     "kaggle_news":   0.85,
     "newsapi":       0.90,
     "kaggle_tweets": 0.55,

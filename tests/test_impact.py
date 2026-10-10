@@ -84,13 +84,28 @@ def test_corroboration_tracker():
     tracker = CorroborationTracker(window_hours=6)
     ts = datetime.now(tz=timezone.utc)
 
-    boost1 = tracker.record("SIVB", "Credit Event", "kaggle_news",   ts)
-    boost2 = tracker.record("SIVB", "Credit Event", "kaggle_tweets", ts)
+    boost1 = tracker.record("SIVB", "Credit Event", "replay_news",   ts)
+    boost2 = tracker.record("SIVB", "Credit Event", "replay_social", ts)
     boost3 = tracker.record("SIVB", "Credit Event", "newsapi",       ts)
 
     assert boost1 < boost2 < boost3
-    assert 1.0 <= boost1 <= 1.5
-    assert 1.0 <= boost3 <= 1.5
+    assert boost1 == 1.0
+    assert boost2 == 1.15
+    assert boost3 == 1.30
+
+
+def test_two_sources_corroboration_boost():
+    """Two different sources within the window must assert the boost is exactly 1.15."""
+    from datetime import datetime, timezone, timedelta
+    tracker = CorroborationTracker(window_hours=24)
+    t0 = datetime.now(tz=timezone.utc)
+    t1 = t0 + timedelta(hours=2)
+
+    b1 = tracker.record("SIVB", "Credit Event", "replay_news", t0)
+    assert b1 == 1.0
+
+    b2 = tracker.record("SIVB", "Credit Event", "replay_social", t1)
+    assert b2 == 1.15, f"Expected 1.15 boost for second independent source, got {b2}"
 
 
 def test_all_event_types_in_severity_table():
