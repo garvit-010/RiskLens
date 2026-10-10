@@ -9,7 +9,7 @@
 | Parameter | Value |
 |---|---|
 | **Headline** | *"SVB Financial stock plunges 60% as bank run fears intensify among tech clients"* |
-| **Timestamp** | `2023-03-08T15:00:00+00:00` |
+| **Timestamp** | `2023-03-09T15:00:00+00:00` |
 | **Entity Linked** | SVB Financial Group (`SIVB`) |
 | **Entity Sector / Country** | `Financials` / `US` |
 | **Event Type** | `Credit Event` |
@@ -71,7 +71,7 @@ Running the rebalancer across the 30 replay signals produces tactical tilts acro
 
 ### Minute 1:00 – 2:30: Credit-Aware Stress Testing (Module B)
 1. Navigate to **Stress Testing** tab.
-2. Select the demo trigger: `[2023-03-08 15:00] SIVB – Credit Event (Impact 10.0)`.
+2. Select the demo trigger: `[2023-03-09 15:00] SIVB – Credit Event (Impact 10.0)`.
 3. Highlight the KPI banner: Portfolio drops from **$4.39B to $4.25B** (-$142M net P&L, -3.24%).
 4. Show the **Waterfall Chart**: Corporate loans bear 71% of the loss.
 5. Show **Loss by Sector**: Financials bears -$42.1M loss, demonstrating genuine **credit-aware sector targeting** with documented 25% spillover to other sectors.

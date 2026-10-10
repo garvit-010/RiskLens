@@ -299,7 +299,7 @@ with tab_stress:
         s for s in high_signals
         if s.get("entity", {}).get("ticker") == "SIVB"
         and s.get("event_type") == "Credit Event"
-        and "2023-03-08T15:00" in s.get("timestamp", "")
+        and "2023-03-09T15:00" in s.get("timestamp", "")
     ]
     other_high = [s for s in high_signals if s not in demo_signals]
     ordered_high = demo_signals + other_high

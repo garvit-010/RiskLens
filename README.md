@@ -112,7 +112,7 @@ python -m src.eval.run_eval     # Run empirical model benchmark evaluation
 ### B. Module B: SVB Collapse Stress Test Revaluation
 
 Selected primary demo trigger:
-- **Headline:** *"SVB Financial stock plunges 60% as bank run fears intensify among tech clients"* (March 8, 2023, 15:00 UTC)
+- **Headline:** *"SVB Financial stock plunges 60% as bank run fears intensify among tech clients"* (March 9, 2023, 15:00 UTC)
 - **Signal:** Entity `SIVB` (Financials, US), Event Type: `Credit Event`, Impact Score: `10.0`, Sentiment: `-0.9589`.
 
 ```
