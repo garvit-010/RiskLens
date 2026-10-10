@@ -5,10 +5,11 @@ Maintains a curated alias dictionary for ~15 S&P 100 tickers.
 Each entry maps company names, common aliases, and cashtags to a
 canonical entity record {ticker, name, sector, country}.
 
-Fuzzy-match fallback: if no exact match, try rapidfuzz partial_ratio
-on the document text against all known aliases.
+Exact alias matching uses word boundaries.
+Fuzzy-match fallback searches only against aliases >= 5 characters using
+token_set_ratio at cutoff 90 (skipping 1-2 letter bare abbreviations).
 
-ASSUMPTION: the alias dictionary covers only ~15 tickers used for the
+ASSUMPTION: the alias dictionary covers ~15 tickers used for the
 demo. A production system would integrate with a financial entity DB
 (e.g., FactSet, Bloomberg symbology). See docs/ASSUMPTIONS.md.
 """
@@ -46,16 +47,18 @@ _RAW_ENTITIES = [
      "google,alphabet,googl,goog"),
     ("AMZN",  "Amazon.com Inc.",         "Consumer Disc.",    "US",
      "amazon,amazon.com,amzn"),
+    ("TSLA",  "Tesla Inc.",              "Consumer Disc.",    "US",
+     "tesla,tesla inc,tesla motors,tsla"),
     ("JPM",   "JPMorgan Chase & Co.",    "Financials",        "US",
      "jpmorgan,jp morgan,chase,jpm,jpmorgan chase"),
     ("BAC",   "Bank of America Corp.",   "Financials",        "US",
      "bank of america,bofa,bac"),
     ("GS",    "Goldman Sachs Group",     "Financials",        "US",
-     "goldman sachs,goldman,gs"),
+     "goldman sachs,goldman"),
     ("MS",    "Morgan Stanley",          "Financials",        "US",
-     "morgan stanley,ms"),
+     "morgan stanley"),
     ("C",     "Citigroup Inc.",          "Financials",        "US",
-     "citigroup,citi,citibank,c"),
+     "citigroup,citi,citibank"),
     ("WFC",   "Wells Fargo & Co.",       "Financials",        "US",
      "wells fargo,wfc"),
     ("SIVB",  "SVB Financial Group",     "Financials",        "US",
@@ -67,50 +70,61 @@ _RAW_ENTITIES = [
     ("JNJ",   "Johnson & Johnson",       "Healthcare",        "US",
      "johnson and johnson,j&j,jnj"),
     ("META",  "Meta Platforms Inc.",     "Technology",        "US",
-     "meta,facebook,fb,meta platforms,meta"),
+     "meta,facebook,meta platforms"),
 ]
 
-_CASHTAG_RE = re.compile(r"\$([A-Z]{1,5})")
+_CASHTAG_RE = re.compile(r"\$([A-Za-z]{1,5})\b")
 
 for _ticker, _name, _sector, _country, _aliases in _RAW_ENTITIES:
     _record = {"ticker": _ticker, "name": _name, "sector": _sector, "country": _country}
     _CANONICAL[_ticker] = _record
     for _alias in _aliases.split(","):
-        _ENTITY_MAP[_alias.strip().lower()] = _record
-    # also index the ticker itself
-    _ENTITY_MAP[_ticker.lower()] = _record
+        _alias_clean = _alias.strip().lower()
+        if len(_alias_clean) >= 3:
+            _ENTITY_MAP[_alias_clean] = _record
+    # Only index ticker as standalone word if it is at least 3 characters
+    if len(_ticker) >= 3:
+        _ENTITY_MAP[_ticker.lower()] = _record
 
-_ALL_ALIASES = list(_ENTITY_MAP.keys())
+# Exact matching: longest aliases tested first
+_SORTED_EXACT_ALIASES = sorted(_ENTITY_MAP.keys(), key=len, reverse=True)
 
-
-def _lookup_exact(text_lower: str) -> Optional[dict]:
-    """Check if any alias appears as a word in the text."""
-    for alias, record in _ENTITY_MAP.items():
-        if re.search(r"\b" + re.escape(alias) + r"\b", text_lower):
-            return record
-    return None
+# Fuzzy matching: skip aliases shorter than 5 characters to avoid spurious substring collisions
+_FUZZY_ALIASES = [a for a in _ENTITY_MAP.keys() if len(a) >= 5]
 
 
 def _lookup_cashtag(text: str) -> Optional[dict]:
     """Extract ticker from $CASHTAG pattern."""
     hits = _CASHTAG_RE.findall(text)
     for hit in hits:
-        if hit in _CANONICAL:
-            return _CANONICAL[hit]
+        ticker_upper = hit.upper()
+        if ticker_upper in _CANONICAL:
+            return _CANONICAL[ticker_upper]
+    return None
+
+
+def _lookup_exact(text_lower: str) -> Optional[dict]:
+    """Check if any known alias (len >= 3) appears as a whole word in text."""
+    for alias in _SORTED_EXACT_ALIASES:
+        pattern = r"\b" + re.escape(alias) + r"\b"
+        if re.search(pattern, text_lower):
+            return _ENTITY_MAP[alias]
     return None
 
 
 def _lookup_fuzzy(text_lower: str) -> Optional[dict]:
-    """Fuzzy match text against alias list (threshold 80)."""
-    if not _RF_AVAILABLE:
+    """Fuzzy match text against long aliases (>=5 chars) with token_set_ratio and cutoff 90."""
+    if not _RF_AVAILABLE or not _FUZZY_ALIASES:
         return None
     result = process.extractOne(
-        text_lower, _ALL_ALIASES,
-        scorer=fuzz.partial_ratio,
-        score_cutoff=80,
+        text_lower,
+        _FUZZY_ALIASES,
+        scorer=fuzz.token_set_ratio,
+        score_cutoff=90,
     )
     if result:
-        return _ENTITY_MAP[result[0]]
+        matched_alias = result[0]
+        return _ENTITY_MAP[matched_alias]
     return None
 
 
@@ -118,6 +132,7 @@ def link_entity(doc: Document) -> Document:
     """
     Attempt to resolve the document to a known entity.
     Populates doc.ticker, doc.entity_name, doc.sector, doc.country in place.
+    If no confident match is found, leaves them unset (evaluating to 'N/A' / 'Unknown').
     Returns the doc (whether linked or not).
     """
     # If the doc already carries a ticker from the adapter, check canonical first
@@ -130,7 +145,7 @@ def link_entity(doc: Document) -> Document:
 
     text_lower = doc.text.lower()
 
-    # Priority: cashtag > exact alias > fuzzy
+    # Priority: cashtag > exact word alias > high-confidence fuzzy (>=5 chars)
     rec = _lookup_cashtag(doc.text) or _lookup_exact(text_lower) or _lookup_fuzzy(text_lower)
 
     if rec:
