@@ -154,7 +154,7 @@ def main() -> None:
     if args.gen_portfolio:
         from src.modules.stress_test.portfolio import generate_portfolio
         from src.modules.stress_test.scenarios import save_scenarios_yaml
-        from scripts.gen_replay import generate_svb_replay
+        from src.ingestion.replay import generate_svb_replay
         generate_portfolio(save=True)
         save_scenarios_yaml()
         generate_svb_replay()
