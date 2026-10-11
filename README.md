@@ -3,7 +3,7 @@
 **Candidate Name:** Garvit Audichya  
 **College Email ID:** garvit.23bai10142@vitbhopal.ac.in  
 **College / Campus:** Vellore Institute of Technology, Bhopal Campus  
-**Demo Video Link:** `[TODO: human to fill]`  
+**Demo Video Link:** https://youtu.be/FWdQ6zXhguU  
 **Slide Deck Link:** [docs/presentation.pdf](docs/presentation.pdf)  
 
 > **Disclaimer:** Unrelated to the commercial FAIR-based cyber-risk product of the same name.
@@ -144,4 +144,3 @@ Replaying the 30 chronological SVB headlines automatically penalizes distressed 
 For complete mathematical definitions and simplifying assumptions, see:
 - [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md) – Transparent methodology choices and documented parameters.
 - [docs/results.md](docs/results.md) – Full empirical classification reports and throughput benchmarks.
-- [docs/DEMO_NOTES.md](docs/DEMO_NOTES.md) – Structured 5-minute hackathon jury walkthrough guide.
