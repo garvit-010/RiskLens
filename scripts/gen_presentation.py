@@ -120,7 +120,7 @@ def create_presentation():
     c.drawCentredString(width/2, 160, "Project Submission Details")
     c.setFillColor(text_sub)
     c.setFont("Helvetica", 11)
-    c.drawCentredString(width/2, 136, "Candidate Name: Garvit Kataria")
+    c.drawCentredString(width/2, 136, "Candidate: Garvit Audichya | garvitaudichya010@gmail.com")
     c.drawCentredString(width/2, 114, "College / Campus: Engineering Institution")
     c.drawCentredString(width/2, 92, "Stack: Python 3.11 | ProsusAI/FinBERT | MiniLM-L6-v2 | FastAPI | Streamlit")
     c.setFillColor(accent_amber)

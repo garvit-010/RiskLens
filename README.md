@@ -1,10 +1,10 @@
 # RiskLens – Explainable News-to-Risk Engine with Wholesale Banking Stress Testing
 
-**Candidate Name:** `[TODO: human to fill]`  
-**College Email ID:** `[TODO: human to fill]`  
+**Candidate Name:** Garvit Audichya  
+**College Email ID:** garvitaudichya010@gmail.com  
 **College / Campus:** `[TODO: human to fill]`  
 **Demo Video Link:** `[TODO: human to fill]`  
-**Slide Deck Link:** `[TODO: human to fill]`  
+**Slide Deck Link:** [docs/presentation.pdf](docs/presentation.pdf)  
 
 > **Disclaimer:** Unrelated to the commercial FAIR-based cyber-risk product of the same name.
 
@@ -69,9 +69,9 @@ Every dataset claimed in this repository corresponds directly to local files in 
 ## 4. Quickstart & Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+# Clone the repository (or your <college>-garvit-audichya-hackathon fork)
+git clone https://github.com/garvit-010/RiskLens.git
+cd RiskLens
 
 # Install required dependencies
 pip install -r requirements.txt
