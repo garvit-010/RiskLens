@@ -1,8 +1,8 @@
 # RiskLens – Explainable News-to-Risk Engine with Wholesale Banking Stress Testing
 
 **Candidate Name:** Garvit Audichya  
-**College Email ID:** garvitaudichya010@gmail.com  
-**College / Campus:** `[TODO: human to fill]`  
+**College Email ID:** garvit.23bai10142@vitbhopal.ac.in  
+**College / Campus:** Vellore Institute of Technology, Bhopal Campus  
 **Demo Video Link:** `[TODO: human to fill]`  
 **Slide Deck Link:** [docs/presentation.pdf](docs/presentation.pdf)  
 
