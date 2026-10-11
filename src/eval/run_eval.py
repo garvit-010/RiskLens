@@ -408,6 +408,15 @@ def save_results_md(sentiment_results: dict | None, event_results: dict | None) 
         fh.write("\n".join(lines))
     logger.info("Results saved to %s", out)
 
+    json_out = DOCS_DIR / "eval_results.json"
+    eval_payload = {
+        "sentiment": sentiment_results,
+        "event_classification": event_results,
+    }
+    with open(json_out, "w", encoding="utf-8") as fh:
+        json.dump(eval_payload, fh, indent=2)
+    logger.info("Structured JSON saved to %s", json_out)
+
 
 def main() -> None:
     sentiment_results = None

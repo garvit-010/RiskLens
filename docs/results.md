@@ -12,7 +12,7 @@
 | **ProsusAI/finbert (Threshold)** | **87.6%** (0.8759) | **0.8763** | Continuous net score ($P(pos) - P(neg)$, threshold $\pm 0.1$), **used in engine** |
 | **VADER** (rule baseline) | 57.1% (0.5711) | 0.4871 | Lexicon-based heuristic fallback |
 
-**Measured Throughput:** `43.3 docs/sec` on NVIDIA GeForce GTX 1650 Ti (4GB VRAM, CUDA fp16 batched).
+**Measured Throughput:** `45.9 docs/sec` on NVIDIA GeForce GTX 1650 Ti (4GB VRAM, CUDA fp16 batched).
 
 > [!NOTE]
 > **Mapping Difference & Engine Usage:** FinBERT argmax mapping achieves 97.2% accuracy / 0.963 macro-F1, whereas the engine's continuous net score threshold mapping ($P(pos) - P(neg)$ at $\pm 0.1$) achieves 87.6% accuracy / 0.876 macro-F1 because subtle sentiment tilts in neutral text shift predictions away from discrete neutral; the RiskLens engine uses the continuous net score ($[-1, 1]$) directly to scale portfolio stress shocks linearly.

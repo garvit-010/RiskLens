@@ -1,0 +1,94 @@
+{
+  "sentiment": {
+    "n": 2264,
+    "dataset": "Financial PhraseBank (100% Annotator Agreement Subset, Sentences_AllAgree.txt)",
+    "throughput_docs_per_sec": 45.9,
+    "finbert_argmax": {
+      "accuracy": 0.9717,
+      "macro_f1": 0.9625,
+      "per_class": {
+        "Negative": {
+          "precision": 0.906,
+          "recall": 0.983,
+          "f1-score": 0.943,
+          "support": 303
+        },
+        "Neutral": {
+          "precision": 0.999,
+          "recall": 0.967,
+          "f1-score": 0.982,
+          "support": 1391
+        },
+        "Positive": {
+          "precision": 0.947,
+          "recall": 0.977,
+          "f1-score": 0.962,
+          "support": 570
+        }
+      }
+    },
+    "finbert_threshold": {
+      "accuracy": 0.8759,
+      "macro_f1": 0.8763,
+      "per_class": {
+        "Negative": {
+          "precision": 0.845,
+          "recall": 0.987,
+          "f1-score": 0.910,
+          "support": 303
+        },
+        "Neutral": {
+          "precision": 0.996,
+          "recall": 0.812,
+          "f1-score": 0.895,
+          "support": 1391
+        },
+        "Positive": {
+          "precision": 0.714,
+          "recall": 0.974,
+          "f1-score": 0.824,
+          "support": 570
+        }
+      }
+    },
+    "vader": {
+      "accuracy": 0.5711,
+      "macro_f1": 0.4871,
+      "per_class": {
+        "Negative": {
+          "precision": 0.368,
+          "recall": 0.224,
+          "f1-score": 0.279,
+          "support": 303
+        },
+        "Neutral": {
+          "precision": 0.805,
+          "recall": 0.579,
+          "f1-score": 0.673,
+          "support": 1391
+        },
+        "Positive": {
+          "precision": 0.389,
+          "recall": 0.737,
+          "f1-score": 0.509,
+          "support": 570
+        }
+      }
+    }
+  },
+  "event_classification": {
+    "n": 67,
+    "dataset": "data/labeled_eval/labels.csv",
+    "cv_method": "Stratified 2-Fold Cross-Validation (out-of-fold)",
+    "lr_prediction_count": 0,
+    "kw_prediction_count": 67,
+    "ml_classifier": {
+      "macro_f1": 0.6793,
+      "credit_event_f1": 0.9230
+    },
+    "keyword_baseline": {
+      "macro_f1": 0.6793,
+      "credit_event_f1": 0.9230
+    }
+  }
+}
