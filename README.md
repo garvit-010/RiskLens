@@ -4,7 +4,7 @@
 **College Email ID:** garvit.23bai10142@vitbhopal.ac.in  
 **College / Campus:** Vellore Institute of Technology, Bhopal Campus  
 **Demo Video Link:** https://youtu.be/FWdQ6zXhguU  
-**Slide Deck Link:** [docs/presentation.pdf](docs/presentation.pdf)  
+**Slide Deck Link:** https://tinyurl.com/v69yty4u
 
 > **Disclaimer:** Unrelated to the commercial FAIR-based cyber-risk product of the same name.
 
