@@ -36,6 +36,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--live",           action="store_true", help="Run NLP engine live (not cached replay)")
     p.add_argument("--api-only",       action="store_true", help="Start FastAPI server only")
     p.add_argument("--dashboard-only", action="store_true", help="Start Streamlit dashboard only")
+    p.add_argument("--unified-only",   action="store_true", help="Start standalone single-page Executive Cockpit dashboard")
     p.add_argument("--precompute",     action="store_true", help="Process replay data and cache signals")
     p.add_argument("--gen-portfolio",  action="store_true", help="Regenerate synthetic portfolio + scenarios")
     return p.parse_args()
@@ -133,11 +134,12 @@ def start_api_server() -> subprocess.Popen:
     return proc
 
 
-def start_dashboard() -> subprocess.Popen:
+def start_dashboard(unified_only: bool = False) -> subprocess.Popen:
     from src.config import STREAMLIT_PORT
-    logger.info("Starting Streamlit dashboard on port %d …", STREAMLIT_PORT)
+    script = "src/dashboard/unified_dashboard.py" if unified_only else "src/dashboard/app.py"
+    logger.info("Starting Streamlit dashboard (%s) on port %d …", script, STREAMLIT_PORT)
     proc = subprocess.Popen(
-        [sys.executable, "-m", "streamlit", "run", "src/dashboard/app.py",
+        [sys.executable, "-m", "streamlit", "run", script,
          "--server.port", str(STREAMLIT_PORT),
          "--server.headless", "true",
          "--browser.gatherUsageStats", "false"],
@@ -168,16 +170,22 @@ def main() -> None:
 
     procs = []
 
-    if not args.dashboard_only:
+    if not (args.dashboard_only or args.unified_only):
         procs.append(start_api_server())
 
-    if not args.api_only:
+    if args.unified_only:
+        from src.config import SIGNAL_JSONL_PATH
+        if not SIGNAL_JSONL_PATH.exists() or SIGNAL_JSONL_PATH.stat().st_size == 0:
+            logger.info("No cached signals found – running precompute …")
+            run_precompute()
+        procs.append(start_dashboard(unified_only=True))
+    elif not args.api_only:
         # If no signals yet, precompute them first
         from src.config import SIGNAL_JSONL_PATH
         if not SIGNAL_JSONL_PATH.exists() or SIGNAL_JSONL_PATH.stat().st_size == 0:
             logger.info("No cached signals found – running precompute …")
             run_precompute()
-        procs.append(start_dashboard())
+        procs.append(start_dashboard(unified_only=False))
 
     if not procs:
         logger.error("No processes started. Use --api-only or --dashboard-only.")

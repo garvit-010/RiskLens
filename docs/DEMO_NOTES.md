@@ -65,9 +65,13 @@ Running the rebalancer across the 30 replay signals produces tactical tilts acro
 
 ## 4. 5-Minute Live Demo Script
 
-### Minute 0:00 – 1:00: Problem & Ingestion Stream
+### Minute 0:00 – 1:30: Executive Cockpit (Unified 360° Stakeholder View)
 1. Open Streamlit Dashboard (`http://localhost:8501`).
-2. Show **Live Signals Feed**: Explain that raw unstructured news and social feeds are processed offline by FinBERT (`ProsusAI/finbert` fp16 on CUDA) and MiniLM (`all-MiniLM-L6-v2`).
+2. Show **Executive Cockpit (Default Tab / Unified View)**:
+   - Walk the jury through the single unified dashboard designed for stakeholders to see everything at once.
+   - Point out the 6 KPI banner: Ingested signals (819), active SIVB shock, portfolio stress loss (-$4.9M / -4.86%), tactical tilt spread (-1.38% SIVB vs +1.91% BAC), and FinBERT NLP reliability (97.2% Acc / 98.7% Adverse Recall).
+   - Show how the **Spotlight Card** links the March 9, 2023 Silicon Valley Bank headline directly to balance sheet stress testing and automated rebalancing.
+   - Adjust the **Simulation Severity Slider** to show the entire dashboard re-evaluating dynamically in real-time.
 3. Point out independent source tagging (`replay_news` vs `replay_social`) and the corroboration multiplier (1.15 boost when two independent sources confirm).
 
 ### Minute 1:00 – 2:30: Credit-Aware Stress Testing (Module B)

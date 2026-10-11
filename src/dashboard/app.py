@@ -31,6 +31,7 @@ if str(_ROOT) not in sys.path:
 from src.config import (
     SIGNAL_JSONL_PATH, IMPACT_THRESHOLD, PORTFOLIO_DIR, DOCS_DIR
 )
+from src.dashboard.unified_cockpit import render_unified_cockpit
 
 # ---------------------------------------------------------------------------
 # Page config
@@ -180,12 +181,28 @@ if auto_refresh:
 # ---------------------------------------------------------------------------
 # Tabs
 # ---------------------------------------------------------------------------
-tab_feed, tab_stress, tab_rebal, tab_eval = st.tabs([
+tab_unified, tab_feed, tab_stress, tab_rebal, tab_eval = st.tabs([
+    "🏛️ Executive Cockpit",
     "📡 Live Feed",
     "📊 Stress Test",
     "⚖️ Rebalancer",
     "📈 Evaluation",
 ])
+
+# ===========================================================================
+# TAB 0 – Executive Cockpit (Unified Stakeholder View)
+# ===========================================================================
+with tab_unified:
+    eval_metrics = None
+    json_path = DOCS_DIR / "eval_results.json"
+    if json_path.exists():
+        try:
+            with open(json_path, encoding="utf-8") as f:
+                eval_metrics = json.load(f)
+        except Exception:
+            eval_metrics = None
+    portfolio_df = load_portfolio()
+    render_unified_cockpit(signals, portfolio_df, impact_threshold, metrics=eval_metrics)
 
 # ===========================================================================
 # TAB 1 – Live Feed

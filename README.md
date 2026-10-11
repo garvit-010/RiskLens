@@ -85,7 +85,8 @@ This launches the **FastAPI REST API** on port `8000` and the interactive **Stre
 ```bash
 # Alternative execution modes:
 python run.py --live            # On-the-fly neural inference on incoming text
-python run.py --dashboard-only  # Streamlit UI only
+python run.py --dashboard-only  # Streamlit UI (opens Executive Cockpit by default with deep-dive tabs)
+python run.py --unified-only    # Standalone single-page Executive Cockpit for stakeholders
 python run.py --api-only        # Headless FastAPI signal server only
 python -m src.eval.run_eval     # Run empirical model benchmark evaluation
 ```
