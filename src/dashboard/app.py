@@ -2,10 +2,10 @@
 RiskLens – Streamlit Dashboard
 
 Tabs:
-  1. 📡 Live Feed       – incoming signals from the replay / live engine
-  2. 📊 Stress Test     – Module B: portfolio before/after, waterfall, breakdown
-  3. ⚖️  Rebalancer     – Module A: weights over time + headlines driving them
-  4. 📈 Evaluation      – FinBERT vs VADER, event classifier metrics
+  1. Live Feed       - incoming signals from the replay / live engine
+  2. Stress Test     - Module B: portfolio before/after, waterfall, breakdown
+  3. Rebalancer     - Module A: weights over time + headlines driving them
+  4. Evaluation      - FinBERT vs VADER, event classifier metrics
 
 Run with:
     streamlit run src/dashboard/app.py
@@ -38,7 +38,7 @@ from src.dashboard.unified_cockpit import render_unified_cockpit
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="RiskLens | News-to-Risk Engine",
-    page_icon="🔭",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -131,21 +131,26 @@ def _impact_color(score: float) -> str:
 
 def _sentiment_label(score: float) -> str:
     if score > 0.2:
-        return "🟢 Positive"
+        return "Positive"
     if score < -0.2:
-        return "🔴 Negative"
-    return "🟡 Neutral"
+        return "Negative"
+    return "Neutral"
 
 
 # ---------------------------------------------------------------------------
 # Header
 # ---------------------------------------------------------------------------
-col_logo, col_title = st.columns([1, 8])
-with col_logo:
-    st.markdown("## 🔭")
+col_title, col_badge = st.columns([8, 2])
 with col_title:
     st.markdown("# RiskLens")
-    st.caption("Explainable News-to-Risk Engine | S&P Global & Crisil Campus Hackathon")
+    st.caption("Explainable News-to-Risk Engine | S&P Global & CRISIL Campus Hackathon")
+with col_badge:
+    st.markdown(
+        '<div style="text-align:right; padding-top:1.2rem;">'
+        '<span style="background:#1e293b; color:#38bdf8; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:600; border:1px solid #334155;">'
+        'Enterprise Risk v1.0</span></div>',
+        unsafe_allow_html=True,
+    )
 
 st.markdown("---")
 
@@ -153,7 +158,7 @@ st.markdown("---")
 # Sidebar
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### ⚙️ Controls")
+    st.markdown("### Controls")
     auto_refresh = st.toggle("Auto-refresh (5 s)", value=False)
     st.markdown("---")
     impact_threshold = st.slider(
@@ -162,14 +167,14 @@ with st.sidebar:
         value=float(IMPACT_THRESHOLD), step=0.5,
     )
     st.markdown("---")
-    st.markdown("### 📂 Data Sources")
+    st.markdown("### Data Sources")
     signals = load_signals()
     st.metric("Total signals", len(signals))
     high = [s for s in signals if s.get("impact_score", 0) >= impact_threshold]
     st.metric("High-impact events", len(high), delta_color="inverse")
     st.markdown("---")
     st.markdown(
-        '<div class="disclaimer">⚠️ Portfolio data is <b>SYNTHETIC</b>. '
+        '<div class="disclaimer"><b>NOTICE:</b> Portfolio data is <b>SYNTHETIC</b>. '
         'All stress-test outputs are for demonstration only.</div>',
         unsafe_allow_html=True,
     )
@@ -182,11 +187,11 @@ if auto_refresh:
 # Tabs
 # ---------------------------------------------------------------------------
 tab_unified, tab_feed, tab_stress, tab_rebal, tab_eval = st.tabs([
-    "🏛️ Executive Cockpit",
-    "📡 Live Feed",
-    "📊 Stress Test",
-    "⚖️ Rebalancer",
-    "📈 Evaluation",
+    "Executive Cockpit",
+    "Live Feed",
+    "Stress Test",
+    "Rebalancer",
+    "Evaluation",
 ])
 
 # ===========================================================================
@@ -208,7 +213,7 @@ with tab_unified:
 # TAB 1 – Live Feed
 # ===========================================================================
 with tab_feed:
-    st.subheader("📡 Risk Signal Feed")
+    st.subheader("Risk Signal Feed")
 
     if not signals:
         st.info(
@@ -303,9 +308,9 @@ with tab_feed:
 # TAB 2 – Stress Test
 # ===========================================================================
 with tab_stress:
-    st.subheader("📊 Strategic Portfolio Stress Test")
+    st.subheader("Strategic Portfolio Stress Test")
     st.markdown(
-        '<div class="disclaimer">⚠️ SYNTHETIC portfolio. Simplified first-order approximation. '
+        '<div class="disclaimer"><b>NOTICE:</b> SYNTHETIC portfolio. Simplified first-order approximation. '
         'Not production-grade. See docs/ASSUMPTIONS.md.</div>',
         unsafe_allow_html=True,
     )
@@ -330,8 +335,8 @@ with tab_stress:
                 etype = s.get("event_type", "?")
                 imp = s.get("impact_score", 0)
                 ts = s.get("timestamp", "")[:16]
-                prefix = "⭐ [PRIMARY DEMO] " if (i == 0 and ticker == "SIVB") else ""
-                sig_labels.append(f"{prefix}[{ts}] {ticker} – {etype} (Impact {imp:.1f})")
+                prefix = "[PRIMARY DEMO] " if (i == 0 and ticker == "SIVB") else ""
+                sig_labels.append(f"{prefix}[{ts}] {ticker} - {etype} (Impact {imp:.1f})")
 
             sel_idx = st.selectbox("Triggering event", range(len(sig_labels)),
                                    format_func=lambda i: sig_labels[i])
@@ -354,7 +359,7 @@ with tab_stress:
             step=0.1,
             help="Linear scaling: 0% shock at impact 5.0 to 100% shock at impact 10.0 (e.g. 7.1 applies ~42% of base shock).",
         )
-        st.caption("ℹ️ Linear scaling from impact 5.0 (0%) to 10.0 (100%). Spillover applied to non-target sectors.")
+        st.caption("Linear scaling from impact 5.0 (0%) to 10.0 (100%). Spillover applied to non-target sectors.")
 
     st.markdown("---")
 
@@ -427,7 +432,7 @@ with tab_stress:
         st.plotly_chart(fig_cnt, use_container_width=True)
 
     # Top 10 losers
-    st.subheader("🔺 Top 10 Loss Contributors")
+    st.subheader("Top 10 Loss Contributors")
     top_df = pd.DataFrame(result["top_losers"])
     if not top_df.empty:
         top_df["pnl"] = top_df["pnl"].apply(lambda x: f"${x:,.0f}")
@@ -435,7 +440,7 @@ with tab_stress:
         st.dataframe(top_df, use_container_width=True)
 
     # Triggering headline
-    st.subheader("🗞️ Triggering Signal")
+    st.subheader("Triggering Signal")
     sources = trigger_signal.get("sources", [])
     if sources:
         st.markdown(f"> {sources[0].get('snippet', '')[:400]}")
@@ -448,7 +453,7 @@ with tab_stress:
     }, expanded=False)
 
     # Reverse stress test
-    st.subheader("🔄 Reverse Stress Test")
+    st.subheader("Reverse Stress Test")
     loss_threshold = st.slider(
         "Loss threshold for reverse stress (%)",
         min_value=1.0, max_value=20.0, value=5.0, step=0.5,
@@ -488,9 +493,9 @@ with tab_stress:
 # TAB 3 – Rebalancer
 # ===========================================================================
 with tab_rebal:
-    st.subheader("⚖️ Tactical Index Rebalancer (Module A)")
+    st.subheader("Tactical Index Rebalancer (Module A)")
     st.markdown(
-        '<div class="disclaimer">⚠️ Demonstration only. NOT a real trading strategy. '
+        '<div class="disclaimer"><b>NOTICE:</b> Demonstration only. NOT a real trading strategy. '
         'Sentiment is not causality. See docs/ASSUMPTIONS.md.</div>',
         unsafe_allow_html=True,
     )
@@ -549,7 +554,7 @@ with tab_rebal:
 # TAB 4 – Evaluation
 # ===========================================================================
 with tab_eval:
-    st.subheader("📈 Model Evaluation")
+    st.subheader("Model Evaluation")
 
     results_path = DOCS_DIR / "results.md"
     if results_path.exists():

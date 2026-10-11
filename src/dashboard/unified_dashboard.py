@@ -31,7 +31,7 @@ from src.dashboard.unified_cockpit import render_unified_cockpit
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="RiskLens | Unified Stakeholder Cockpit",
-    page_icon="🏛️",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -65,7 +65,7 @@ def load_portfolio() -> pd.DataFrame:
 # Sidebar
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("## 🏛️ Executive Controls")
+    st.markdown("## Executive Controls")
     auto_refresh = st.toggle("Auto-refresh (5 s)", value=False)
     st.markdown("---")
 
@@ -76,16 +76,16 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.markdown("### 📂 Ingested Corpus")
+    st.markdown("### Ingested Corpus")
     signals = load_signals()
     st.metric("Total Ingested Signals", len(signals))
     high = [s for s in signals if s.get("impact_score", 0) >= impact_threshold]
-    st.metric("Critical Alerts (≥ Threshold)", len(high), delta_color="inverse")
+    st.metric("Critical Alerts (>= Threshold)", len(high), delta_color="inverse")
 
     st.markdown("---")
     st.markdown(
         '<div style="background:#1c1207; border:1px solid #713f12; border-radius:8px; padding:0.6rem 0.8rem; color:#fbbf24; font-size:0.8rem;">'
-        '⚠️ <b>SYNTHETIC PORTFOLIO NOTICE:</b> Wholesale loan book (300 positions, seed 42) is synthetic for demonstration. '
+        '<b>NOTICE:</b> Wholesale loan book (300 positions, seed 42) is synthetic for demonstration. '
         'Revaluations represent first-order MTM approximations.</div>',
         unsafe_allow_html=True,
     )

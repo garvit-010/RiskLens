@@ -143,7 +143,7 @@ def render_unified_cockpit(
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <h2 style="margin:0; font-size:1.6rem; color:#f8fafc; font-weight:700;">
-                    🏛️ Executive Risk Cockpit
+                    Executive Risk Cockpit
                 </h2>
                 <div style="color:#94a3b8; font-size:0.9rem; margin-top:0.3rem;">
                     360° Real-time Risk Intelligence: Live Ingestion &bull; Stress Testing (Module B) &bull; Tactical Rebalancing (Module A) &bull; AI Governance
@@ -161,7 +161,7 @@ def render_unified_cockpit(
     # ---------------------------------------------------------------------------
     # 3. Interactive Scenario Ribbon (Stakeholder Simulation)
     # ---------------------------------------------------------------------------
-    with st.expander("🎛️ Simulation Controls & Scenario Trigger", expanded=False):
+    with st.expander("Simulation Controls & Scenario Trigger", expanded=False):
         c_sim1, c_sim2 = st.columns([2, 1])
         with c_sim1:
             if ordered_high:
@@ -171,8 +171,8 @@ def render_unified_cockpit(
                     etype = s.get("event_type", "?")
                     imp = s.get("impact_score", 0)
                     ts = s.get("timestamp", "")[:16]
-                    prefix = "⭐ [PRIMARY DEMO] " if (i == 0 and ticker == "SIVB") else ""
-                    sig_labels.append(f"{prefix}[{ts}] {ticker} – {etype} (Impact {imp:.1f})")
+                    prefix = "[PRIMARY DEMO] " if (i == 0 and ticker == "SIVB") else ""
+                    sig_labels.append(f"{prefix}[{ts}] {ticker} - {etype} (Impact {imp:.1f})")
                 sel_idx = st.selectbox(
                     "Active Triggering Event",
                     range(len(sig_labels)),
@@ -299,7 +299,7 @@ def render_unified_cockpit(
     col_intel, col_radar = st.columns([7, 5])
 
     with col_intel:
-        st.markdown("### 📡 1. Real-Time Crisis Radar & Triggering Intelligence")
+        st.markdown("### 1. Real-Time Crisis Radar & Triggering Intelligence")
         
         sources = active_signal.get("sources", [])
         snippet = sources[0].get("snippet", "No headline snippet available.") if sources else "No snippet available."
@@ -338,7 +338,7 @@ def render_unified_cockpit(
         """, unsafe_allow_html=True)
 
         # Chronological Recent High-Impact Alerts
-        st.markdown("##### ⚡ High-Severity Alerts Ingestion Stream")
+        st.markdown("##### High-Severity Alerts Ingestion Stream")
         alert_rows = []
         for s in ordered_high[1:5]:
             t_s = s.get("entity", {}).get("ticker", "?")
@@ -350,7 +350,7 @@ def render_unified_cockpit(
             st.dataframe(pd.DataFrame(alert_rows), hide_index=True, use_container_width=True)
 
     with col_radar:
-        st.markdown("### 🌐 Threat Landscape Distribution")
+        st.markdown("### Threat Landscape Distribution")
         # Ingestion distribution by event type
         event_counts = {}
         for s in signals:
@@ -377,7 +377,7 @@ def render_unified_cockpit(
     # ---------------------------------------------------------------------------
     # 9. Row 2: Portfolio Impact & Stress Test (Module B)
     # ---------------------------------------------------------------------------
-    st.markdown("### 📊 2. Strategic Balance Sheet Stress Test (Module B)")
+    st.markdown("### 2. Strategic Balance Sheet Stress Test (Module B)")
 
     c_b1, c_b2, c_b3 = st.columns([4, 4, 4])
 
@@ -440,7 +440,7 @@ def render_unified_cockpit(
             st.markdown(f"""
             <div style="background:#1e1b4b; border:1px solid #4338ca; border-radius:8px; padding:0.65rem 0.9rem; margin-top:0.5rem;">
                 <div style="font-size:0.75rem; color:#a5b4fc; text-transform:uppercase; font-weight:700;">
-                    🔄 Regulatory Reverse Stress Threshold
+                    Regulatory Reverse Stress Threshold
                 </div>
                 <div style="font-size:0.95rem; color:#f8fafc; font-weight:600; margin-top:0.2rem;">
                     Breaches <b>5.0% Loss Limit</b> at Impact Score <span style="color:#f87171; font-weight:700;">{break_score:.2f}</span>
@@ -454,7 +454,7 @@ def render_unified_cockpit(
             st.markdown("""
             <div style="background:#0f172a; border:1px solid #334155; border-radius:8px; padding:0.65rem 0.9rem; margin-top:0.5rem;">
                 <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">
-                    🔄 Regulatory Reverse Stress Threshold
+                    Regulatory Reverse Stress Threshold
                 </div>
                 <div style="font-size:0.85rem; color:#cbd5e1; margin-top:0.2rem;">
                     Portfolio maintains capital cushion across entire sweep (< 5.0% loss).
@@ -467,7 +467,7 @@ def render_unified_cockpit(
     # ---------------------------------------------------------------------------
     # 10. Row 3: Tactical Rebalancing (Module A)
     # ---------------------------------------------------------------------------
-    st.markdown("### ⚖️ 3. Tactical Index Rebalancer & Capital Protection (Module A)")
+    st.markdown("### 3. Tactical Index Rebalancer & Capital Protection (Module A)")
 
     c_r1, c_r2 = st.columns([6, 6])
 
@@ -518,7 +518,7 @@ def render_unified_cockpit(
     # ---------------------------------------------------------------------------
     # 11. Row 4: Quantitative AI Rigor & Model Governance
     # ---------------------------------------------------------------------------
-    st.markdown("### 📈 4. Quantitative Rigor, Model Evaluation & Governance")
+    st.markdown("### 4. Quantitative Rigor, Model Evaluation & Governance")
 
     c_g1, c_g2 = st.columns([7, 5])
 
@@ -561,16 +561,16 @@ def render_unified_cockpit(
         st.markdown("""
         <div style="background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:0.9rem 1.1rem; font-size:0.83rem; line-height:1.6; color:#cbd5e1;">
             <div style="margin-bottom:0.4rem;">
-                🔒 <b>100% Offline Local Inference:</b> Zero external API keys or cloud dependencies. FinBERT weights run locally on GPU (45.9 docs/sec).
+                <b>100% Offline Local Inference:</b> Zero external API keys or cloud dependencies. FinBERT weights run locally on GPU (45.9 docs/sec).
             </div>
             <div style="margin-bottom:0.4rem;">
-                📋 <b>Full Explainability Trail:</b> Every impact score is decomposed into base severity &times; entity confidence &times; urgency &times; sentiment.
+                <b>Full Explainability Trail:</b> Every impact score is decomposed into base severity &times; entity confidence &times; urgency &times; sentiment.
             </div>
             <div style="margin-bottom:0.4rem;">
-                ⚠️ <b>Methodological Honesty:</b> Wholesale loan book (300 positions) is synthetic for demonstration; ratings transitions and shocks are domain-informed.
+                <b>Methodological Disclosure:</b> Wholesale loan book (300 positions) is synthetic for demonstration; ratings transitions and shocks are domain-informed.
             </div>
             <div>
-                ✅ <b>Adverse Signal Protection:</b> 98.7% negative recall guarantees emerging credit distress is not suppressed.
+                <b>Adverse Signal Protection:</b> 98.7% negative recall guarantees emerging credit distress is not suppressed.
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -583,7 +583,7 @@ def render_unified_cockpit(
     st.markdown(f"""
     <div class="takeaway-card">
         <h4 style="margin:0 0 0.5rem 0; color:#38bdf8; font-size:1.05rem;">
-            🎯 Executive Risk Committee Decision Summary
+            Executive Risk Committee Decision Summary
         </h4>
         <div style="color:#e2e8f0; font-size:0.88rem; line-height:1.5;">
             &bull; <b>Identified Threat:</b> Silicon Valley Bank's $1.8B available-for-sale securities loss and 60% equity collapse triggered severe systemic credit risk (Impact 7.1).<br>
