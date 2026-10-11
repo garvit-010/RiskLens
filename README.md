@@ -134,19 +134,8 @@ Replaying the 30 chronological SVB headlines automatically penalizes distressed 
 - **Overweighted:** Flight-to-safety deposit winner `BAC` (+1.91% tilt to 8.58% weight, accumulated sentiment +0.69); and defensive neutral megacaps (`AAPL`, `MSFT`, `GOOGL`, `AMZN`, `C`, `XOM`, `CVX`, `JNJ`, `META` at +0.34% tilt to 7.01% weight) absorbing reallocated capital.
 - *Note on sentiment column:* Values reflect exponentially decayed sentiment accumulation over consecutive events (which can aggregate outside $[-1, 1]$ when multiple severe events occur before elapsed-time decay resets the EMA). Citigroup (`C`) sits at neutral baseline (+0.34% tilt) rather than false entity-matching inflation.
 
----
 
-## 6. Dashboard & Visual Proof
-
-### Stress Testing Dashboard
-![RiskLens Dashboard](docs/dashboard_screenshot.png)
-
-### Out-of-Fold Event Classifier Confusion Matrix
-![Event Confusion Matrix](docs/event_confusion.png)
-
----
-
-## 7. Regulatory Alignment & Domain Grounding
+## 6. Regulatory Alignment & Domain Grounding
 
 - **Supervisory Stress Testing:** The stress-testing module is **conceptually aligned with scenario analysis practices used in ICAAP and supervisory stress testing**, translating macro narrative shocks into granular rating-bucket spread widenings and counterparty PD migrations.
 - **Reverse Stress Testing (SR 12-7):** Solves the supervisory question *"What magnitude of event causes a critical capital breach?"* using continuous bisection search.
