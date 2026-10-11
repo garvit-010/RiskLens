@@ -4,8 +4,8 @@
 
 | Dataset | Source | Status in Repo | License | Location |
 |---|---|---|---|---|
-| SVB Collapse Replay | Curated chronological events based on public news (March 8–21, 2023) | **Shipped in repo** (30 records: 19 news, 11 social) | Public / Original | `raw_samples/replay_svb.jsonl` |
-| Financial PhraseBank | Official 100% annotator agreement subset (Malo et al.) | **Shipped in repo** (2,264 sentences) | CC BY-SA 3.0 / Research | `raw_samples/phrasebank.csv` |
+| SVB Collapse Replay | Curated chronological events based on public reporting; some details paraphrased or synthetic (March 8–21, 2023) | **Shipped in repo** (30 records: 19 news, 11 social) | Public / Original | `raw_samples/replay_svb.jsonl` |
+| Financial PhraseBank | Official 100% annotator agreement subset (Malo et al.) | **Shipped in repo** (2,264 sentences) | CC BY-NC-SA 3.0 / Research | `raw_samples/phrasebank.csv` |
 | Curated Sentiment Eval | Curated financial headline sample | **Shipped in repo** (60 sentences, 95% CI ±6 pp) | Public / Educational | `raw_samples/sentiment_sample_n60.csv` |
 | Labeled Event Eval | Curated banking risk headline reference set | **Shipped in repo** (67 headlines, 11 classes, evaluated via out-of-fold stratified CV) | Public / Educational | `labeled_eval/labels.csv` |
 | Synthetic Wholesale Portfolio | Fully synthetic (seed 42) wholesale portfolio | **Shipped in repo** (300 positions) | Synthetic | `portfolio/portfolio.csv` |
@@ -18,7 +18,7 @@
 ## Assumptions & Integrity
 
 1. **Portfolio data is entirely synthetic.** Generated with fixed random seed 42. Distribution shapes are plausible wholesale exposures but not calibrated to any real institution.
-2. **SVB replay corpus** contains 30 curated chronological headlines and tweets based on verified public events from March 8–21, 2023. Source tags distinguish news (`replay_news`, credibility 0.85) from social commentary (`replay_social`, credibility 0.55).
+2. **SVB replay corpus** contains 30 curated chronological headlines and tweets based on public reporting; some details paraphrased or synthetic (March 8–21, 2023). Source tags distinguish news (`replay_news`, credibility 0.85) from social commentary (`replay_social`, credibility 0.55). Details like the Goldman and Morgan Stanley items on March 14 are unchecked.
 3. **Kaggle Ingestion Adapters** (`kaggle_news.py`, `kaggle_tweets.py`) are fully implemented and verified. Curated 500-news and 300-tweet samples are shipped in repo for complete offline operation without requiring manual Kaggle downloads.
 4. **Scenario shock magnitudes** are documented domain assumptions, not calibrated to empirical abnormal returns. See `docs/ASSUMPTIONS.md`.
 

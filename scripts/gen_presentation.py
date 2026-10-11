@@ -370,7 +370,7 @@ def create_presentation():
     impact_pillars = [
         ("Credit & Counterparty Risk", HexColor("#3B82F6"), [
             "Early Warning Indicators (EWI): Signals detect credit deterioration before rating agencies issue formal downgrade notices.",
-            "PD / Rating Migration: Converts qualitative negative sentiment directly into calibrated rating transitions and expected-loss surges.",
+            "PD / Rating Migration: Converts qualitative negative sentiment directly into domain-informed rating transitions and expected-loss surges.",
             "Concentration Monitoring: Immediate asset-class, sector, and counterparty exposure aggregation."
         ]),
         ("Supervisory Stress Testing Parallels", HexColor("#8B5CF6"), [

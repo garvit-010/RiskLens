@@ -371,7 +371,7 @@ def save_results_md(sentiment_results: dict | None, event_results: dict | None) 
             "> **Honest Benchmark Finding:**",
             "> At n=67 the embedding classifier adds no measurable gain over keyword rules; keyword rules do most of the work. Keywords were refined while reviewing these labels, so the baseline is not fully out-of-sample.",
             "",
-            f"In cross-validation ({cv_method}) at confidence threshold 0.55 across 11 classes, exactly {lr_cnt} of {n} out-of-fold predictions come from Logistic Regression and {kw_cnt} of {n} come from the keyword fallback rules. Lowering the confidence threshold to 0.25 engages LR for ~20 samples but only moves macro-F1 from 0.6793 to 0.6858 (within statistical noise of ±0.02). The hybrid architecture is retained because once trained on all {n} reference headlines, the embedding model provides continuous calibrated probability distributions and semantic generalization to unobserved vocabulary in live feeds without requiring hardcoded entity names.",
+            f"In cross-validation ({cv_method}) at confidence threshold 0.55 across 11 classes, exactly {lr_cnt} of {n} out-of-fold predictions come from Logistic Regression and {kw_cnt} of {n} come from the keyword fallback rules. Lowering the confidence threshold to 0.25 engages LR for ~20 samples but only moves macro-F1 from 0.6793 to 0.6858 (within statistical noise of ±0.02). The hybrid architecture is retained because once trained on all {n} reference headlines, the embedding model provides continuous probability distributions and semantic generalization to unobserved vocabulary in live feeds without requiring hardcoded entity names.",
             "",
             "### Out-of-Fold Confusion Matrix",
             "",
